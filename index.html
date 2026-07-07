@@ -78,7 +78,6 @@
       align-items:center;
       justify-content:center;
       padding:12px;
-      /* Dynamic System Font Update */
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
       color:var(--ink);
       background:
@@ -475,7 +474,6 @@
     }
     .chatTitle{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; text-transform:uppercase;}
     
-    /* SMS BUBBLE STYLING UPDATE */
     .messages{
       flex:1;
       overflow-y:auto;
@@ -1524,13 +1522,21 @@
         
         let totalUnread = 0;
         Object.values(friends).forEach(f => { 
-          // BUG FIX: Only count valid friends to ignore deleted ghost messages!
           if (f && f.uid) {
             totalUnread += (f.unread || 0); 
           }
         });
         const badgeSpan = $("menuInboxBadge");
         if(badgeSpan) badgeSpan.textContent = totalUnread > 0 ? ` (${totalUnread})` : "";
+        
+        // Badging API logic[cite: 1]
+        if (navigator.setAppBadge) {
+          if (totalUnread > 0) {
+            navigator.setAppBadge(totalUnread).catch(e => console.error("Badge error:", e));
+          } else {
+            navigator.clearAppBadge().catch(e => console.error("Badge clear error:", e));
+          }
+        }
 
         if (activeView === "inboxView") renderInbox();
         if (activeView === "friendsView") renderFriends();
@@ -1668,6 +1674,18 @@
       }
     }
 
+    function renderProfile() {
+      if (!profile) return;
+      $("profileAvatar").textContent = profile.avatar || "💛";
+      $("profileName").textContent = profile.nickname || "...";
+      $("profileCode").textContent = profile.code || "...";
+      $("myCodeBox").textContent = profile.code || "...";
+      
+      $("editNameInput").value = profile.nickname || "";
+      editProfileAvatar = profile.avatar || avatars[0];
+      renderEditAvatars();
+    }
+
     async function saveIdentity() {
       if (!profile || !currentUser) return;
       const newName = safeText($("editNameInput").value, profile.nickname).slice(0, 24);
@@ -1677,89 +1695,31 @@
       }
 
       $("saveIdentityBtn").disabled = true;
-      const newUid = newName.toLowerCase().replace(/[^a-z0-9]/g, "");
       
       try {
-        if (newUid !== profile.uid) {
-          const checkSnap = await get(ref(db, `users/${newUid}`));
-          if (checkSnap.exists()) {
-             $("saveIdentityBtn").disabled = false;
-             return showToast("NAME TAKEN!");
-          }
+        profile.nickname = newName;
+        profile.avatar = editProfileAvatar;
+        localStorage.setItem("nokiProfile", JSON.stringify(profile));
+        
+        const updates = {
+          [`users/${currentUser.uid}/nickname`]: newName,
+          [`users/${currentUser.uid}/avatar`]: editProfileAvatar
+        };
 
-          $("saveIdentityBtn").textContent = "MIGRATING..."; 
+        if (profile.code) {
+          updates[`publicCodes/${profile.code}/nickname`] = newName;
+          updates[`publicCodes/${profile.code}/avatar`] = editProfileAvatar;
+        }
 
-          let updates = {};
-          let newProfile = { ...profile, uid: newUid, nickname: newName, avatar: editProfileAvatar };
-          
-          updates[`users/${newUid}`] = newProfile;
-          updates[`users/${profile.uid}`] = null;
-          
-          if (profile.code) {
-            updates[`publicCodes/${profile.code}/uid`] = newUid;
-            updates[`publicCodes/${profile.code}/nickname`] = newName;
-            updates[`publicCodes/${profile.code}/avatar`] = editProfileAvatar;
-          }
-
-          const friendsList = Object.values(friends || {});
-          for (const f of friendsList) {
-            const myOldRefSnap = await get(ref(db, `friends/${f.uid}/${profile.uid}`));
-            if (myOldRefSnap.exists()) {
-               let myOldData = myOldRefSnap.val();
-               myOldData.uid = newUid;
-               myOldData.nickname = newName;
-               myOldData.avatar = editProfileAvatar;
-               updates[`friends/${f.uid}/${newUid}`] = myOldData;
-               updates[`friends/${f.uid}/${profile.uid}`] = null;
-            }
-            
-            updates[`friends/${newUid}/${f.uid}`] = friends[f.uid];
-            updates[`friends/${profile.uid}/${f.uid}`] = null;
-            
-            const oldChatId = chatIdFor(profile.uid, f.uid);
-            const newChatId = chatIdFor(newUid, f.uid);
-            if (oldChatId !== newChatId) {
-               const chatSnap = await get(ref(db, `conversations/${oldChatId}`));
-               if (chatSnap.exists()) {
-                 updates[`conversations/${newChatId}`] = chatSnap.val();
-                 updates[`conversations/${oldChatId}`] = null;
-               }
-            }
-          }
-
-          await update(ref(db), updates);
-
-          profile = newProfile;
-          currentUser.uid = newUid;
-          localStorage.setItem("nokiUid", newUid);
-          localStorage.setItem("nokiProfile", JSON.stringify(profile));
-          
-          if (friendUnsubscribe) friendUnsubscribe();
-          watchFriends();
-
-        } else {
-          profile.nickname = newName;
-          profile.avatar = editProfileAvatar;
-          localStorage.setItem("nokiProfile", JSON.stringify(profile));
-          
-          const updates = {
-            [`users/${currentUser.uid}/nickname`]: newName,
-            [`users/${currentUser.uid}/avatar`]: editProfileAvatar
-          };
-
-          if (profile.code) {
-            updates[`publicCodes/${profile.code}/nickname`] = newName;
-            updates[`publicCodes/${profile.code}/avatar`] = editProfileAvatar;
-          }
-
-          const friendsList = Object.values(friends || {});
-          for (const f of friendsList) {
+        const friendsList = Object.values(friends || {});
+        for (const f of friendsList) {
+           if (f && f.uid) {
              updates[`friends/${f.uid}/${currentUser.uid}/nickname`] = newName;
              updates[`friends/${f.uid}/${currentUser.uid}/avatar`] = editProfileAvatar;
-          }
-
-          await update(ref(db), updates);
+           }
         }
+
+        await update(ref(db), updates);
         
         renderProfile();
         $("saveIdentityBtn").innerText = t("saveIdentityBtn");
