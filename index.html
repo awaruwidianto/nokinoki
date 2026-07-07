@@ -90,7 +90,7 @@
 
     .phone{
       width:min(420px,100%);
-      height:min(700px,96vh); /* Shrunk height since keypad is gone */
+      height:min(700px,96vh);
       background:linear-gradient(145deg,var(--body),var(--body2));
       border:5px solid var(--body3);
       border-radius:42px;
@@ -98,7 +98,7 @@
         inset 0 0 0 4px rgba(255,255,255,.42),
         inset 0 -25px 45px rgba(0,0,0,.08),
         0 26px 60px rgba(70,40,55,.25);
-      padding:18px 16px 18px; /* Evened out padding */
+      padding:18px 16px 18px;
       display:flex;
       flex-direction:column;
       gap:14px;
@@ -735,21 +735,55 @@
     let audioCtx = null;
     
     function initAudio() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      // Audio unlock hack for iOS Safari / Instagram WebView
+      if (!audioCtx._unlocked) {
+        const buffer = audioCtx.createBuffer(1, 1, 22050);
+        const source = audioCtx.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioCtx.destination);
+        source.start(0);
+        audioCtx._unlocked = true;
+      }
     }
+
+    // Bind multiple events globally once to unlock the audio context for strict browsers
+    const unlockEvents = ['click', 'touchstart', 'keydown'];
+    const unlockAudio = () => {
+      initAudio();
+      unlockEvents.forEach(e => document.removeEventListener(e, unlockAudio));
+    };
+    unlockEvents.forEach(e => document.addEventListener(e, unlockAudio, { once: true }));
 
     function playBeep(freq, type, duration) {
       if (!soundEnabled) return;
       initAudio();
+      if (audioCtx.state !== 'running') return; 
+
       try {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.type = type; osc.frequency.value = freq;
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.start(); gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
-        setTimeout(() => osc.stop(), duration * 1000 + 50);
-      } catch (e) {}
+        osc.type = type; 
+        osc.frequency.value = freq;
+        osc.connect(gain); 
+        gain.connect(audioCtx.destination);
+        
+        const now = audioCtx.currentTime;
+        
+        // Fix for never-ending beep: missing .gain and using the proper Web Audio clock 
+        gain.gain.setValueAtTime(1, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+        
+        osc.start(now);
+        osc.stop(now + duration); // Stop accurately based on context time
+      } catch (e) {
+        console.warn("Audio error:", e);
+      }
     }
     
     function soundTyping() { playBeep(300, 'square', 0.05); }
@@ -757,7 +791,8 @@
       playBeep(800, 'sine', 0.1);
       setTimeout(() => playBeep(1200, 'sine', 0.15), 100);
     }
-    function soundClick() { playBeep(450, 'square', 0.03); }
+    // Made the click sound much shorter (0.025s) so it's snappy and doesn't hurt the ears!
+    function soundClick() { playBeep(450, 'square', 0.025); }
 
     let lastTypeTime = 0;
     $("messageInput").addEventListener("input", () => {
@@ -767,9 +802,6 @@
       }
     });
 
-    document.addEventListener("click", initAudio, { once: true });
-    document.addEventListener("keydown", initAudio, { once: true });
-    
     // Listen for general clicks to trigger the UI click sound
     document.addEventListener("click", (e) => {
       if (e.target.closest("#toggleSoundBtn")) return; // Toggle button already handles its own beep
