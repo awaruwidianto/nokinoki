@@ -757,6 +757,7 @@
       playBeep(800, 'sine', 0.1);
       setTimeout(() => playBeep(1200, 'sine', 0.15), 100);
     }
+    function soundClick() { playBeep(450, 'square', 0.03); }
 
     let lastTypeTime = 0;
     $("messageInput").addEventListener("input", () => {
@@ -768,6 +769,14 @@
 
     document.addEventListener("click", initAudio, { once: true });
     document.addEventListener("keydown", initAudio, { once: true });
+    
+    // Listen for general clicks to trigger the UI click sound
+    document.addEventListener("click", (e) => {
+      if (e.target.closest("#toggleSoundBtn")) return; // Toggle button already handles its own beep
+      if (e.target.closest("button, .friendCard, .themeChoice, .avatarChoice")) {
+        soundClick();
+      }
+    });
 
     // --- MAIN APP VARS ---
     const views = {
@@ -826,7 +835,7 @@
       views[viewId].classList.add("active");
       activeView = viewId;
       const title = viewId.replace("View","").toUpperCase();
-      $("screenTitle").textContent = title === "HOME" ? "NOKI OS" : title;
+      $("screenTitle").textContent = title === "HOME" ? "made by AWARU" : title;
 
       if (viewId !== "chatView" && messageUnsubscribe) {
         messageUnsubscribe();
