@@ -617,6 +617,9 @@
         <h1 class="title" data-i18n="setupTitle">ACCOUNT</h1>
         <p class="subtitle" data-i18n="setupSub">Choose a username & password.</p>
 
+        <!-- FIRST OPTION: LANGUAGE TOGGLE FOR LOGIN -->
+        <button class="screenBtn" id="loginLangBtn" type="button" style="margin-bottom: 12px; font-size: 12px; padding: 6px;">LANGUAGE: ENGLISH</button>
+
         <div class="errorBox" id="setupError"></div>
 
         <label for="setupName" data-i18n="usernameLabel">Username</label>
@@ -921,7 +924,7 @@
     });
 
     document.addEventListener("click", (e) => {
-      if (e.target.closest("#toggleSoundBtn") || e.target.closest("#gameArea") || e.target.closest("#jumpBtn") || e.target.closest("#toggleLangBtn")) return; 
+      if (e.target.closest("#toggleSoundBtn") || e.target.closest("#gameArea") || e.target.closest("#jumpBtn") || e.target.closest("#toggleLangBtn") || e.target.closest("#loginLangBtn")) return; 
       if (e.target.closest("button, .friendCard, .themeChoice, .avatarChoice, .removeBtn")) {
         soundClick();
       }
@@ -1136,13 +1139,11 @@
         if (userSnap.exists()) {
           const existingProfile = userSnap.val();
           
-          // Verify Password
           if (existingProfile.password && existingProfile.password !== rawPass) {
              $("enterBtn").disabled = false;
              return showError($("setupError"), "WRONG PASSWORD");
           }
           
-          // Backward compatibility for old testing accounts lacking a password
           if (!existingProfile.password) {
             existingProfile.password = rawPass;
             await update(ref(db, `users/${uid}`), { password: rawPass });
@@ -1359,6 +1360,7 @@
       
       $("toggleSoundBtn").textContent = soundLabels[currentLang] + (soundEnabled ? "ON" : "OFF");
       $("toggleLangBtn").textContent = langNames[currentLang] || langNames.en;
+      if ($("loginLangBtn")) $("loginLangBtn").textContent = langNames[currentLang] || langNames.en;
     }
 
     $("toggleSoundBtn").addEventListener("click", () => {
@@ -1368,14 +1370,17 @@
       if(soundEnabled) playBeep(800, 'sine', 0.1);
     });
 
-    $("toggleLangBtn").addEventListener("click", () => {
-      soundClick(); // Manually play since it returns early on top listener
+    const handleLangToggle = () => {
+      soundClick(); 
       const langs = ['en', 'ko', 'id'];
       let idx = langs.indexOf(currentLang);
       currentLang = langs[(idx + 1) % langs.length];
       localStorage.setItem("nokiLang", currentLang);
       applyLang();
-    });
+    };
+
+    $("toggleLangBtn").addEventListener("click", handleLangToggle);
+    $("loginLangBtn").addEventListener("click", handleLangToggle);
 
     function renderHome() {
       if (!profile) return;
