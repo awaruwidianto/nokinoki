@@ -88,10 +88,10 @@
       transition:background .25s ease;
     }
 
-    /* SHORT, STOUT RETRO PHONE TO BEAT THE IOS KEYBOARD! */
+    /* SHORT, STOUT RETRO PHONE */
     .phone{
       width:min(340px,100%); 
-      height:min(440px,65vh); /* Hugely restricted height to fit with keyboard */
+      height:min(440px,65vh); 
       background:linear-gradient(145deg,var(--body),var(--body2));
       border:4px solid var(--body3);
       border-radius:12px; 
@@ -615,12 +615,15 @@
 
       <div id="setupView" class="view">
         <h1 class="title" data-i18n="setupTitle">ACCOUNT</h1>
-        <p class="subtitle" data-i18n="setupSub">Choose a username to enter.</p>
+        <p class="subtitle" data-i18n="setupSub">Choose a username & password.</p>
 
         <div class="errorBox" id="setupError"></div>
 
         <label for="setupName" data-i18n="usernameLabel">Username</label>
         <input id="setupName" maxlength="24" placeholder="AWARU" autocomplete="username" />
+        
+        <label for="setupPassword" data-i18n="passwordLabel" style="margin-top:6px;">Password</label>
+        <input id="setupPassword" type="password" maxlength="24" placeholder="••••••" />
 
         <div id="avatarSelectSection">
           <label data-i18n="avatarLabel" style="margin-top:10px;">Choose Avatar</label>
@@ -726,9 +729,16 @@
           <button class="screenBtn primary" id="toggleSoundBtn" type="button">Sound: ON</button>
           <button class="screenBtn primary" id="toggleLangBtn" type="button">Language: English</button>
         </div>
+        <button class="screenBtn primary" id="adminBtn" type="button" data-i18n="adminBtn" style="margin-bottom:10px;">DEVELOPER</button>
         <button class="screenBtn" id="goHomeBtn" type="button" data-i18n="homeBtn">HOME</button>
         <button class="screenBtn danger" id="logoutBtn" type="button" data-i18n="logoutBtn">LOGOUT</button>
         <button class="screenBtn danger" id="deleteAccountBtn" type="button" data-i18n="deleteAccountBtn" style="margin-top:6px;">DELETE ACCOUNT</button>
+      </div>
+
+      <div id="adminView" class="view">
+        <h2 class="title">ADMIN DASHBOARD</h2>
+        <div id="adminUserList" style="flex:1; overflow-y:auto; margin-bottom:10px;"></div>
+        <button class="screenBtn" type="button" data-open="settingsView" data-i18n="backBtn">BACK</button>
       </div>
 
       <div id="chatView" class="view chatView">
@@ -771,8 +781,8 @@
     let currentLang = localStorage.getItem("nokiLang") || "en";
     const dict = {
       en: {
-        setupTitle: "ACCOUNT", setupSub: "Choose a username to enter.",
-        usernameLabel: "Username", avatarLabel: "Choose Avatar",
+        setupTitle: "ACCOUNT", setupSub: "Choose a username & password.",
+        usernameLabel: "Username", passwordLabel: "Password", avatarLabel: "Choose Avatar",
         enterBtn: "ENTER NOKI NOKI",
         menuMsg: "Messages", menuFriends: "Friends", menuGame: "Noki Run", menuProfile: "Profile", menuThemes: "Themes", menuSettings: "Settings",
         titleMsg: "MESSAGES", addFriendBtn: "+ ADD FRIEND",
@@ -781,12 +791,13 @@
         titleProfile: "PROFILE", editNameLabel: "Edit Name", editAvatarLabel: "Edit Avatar", saveIdentityBtn: "SAVE IDENTITY",
         titleThemes: "THEMES", themeSub: "Change your phone shell.",
         titleSettings: "SETTINGS", homeBtn: "HOME", logoutBtn: "LOGOUT", deleteAccountBtn: "DELETE ACCOUNT",
+        adminBtn: "DEVELOPER", backBtn: "BACK",
         sendBtn: "OK", confirmRemove: "Delete friend & chat?", confirmDelete: "Are you sure? This will delete EVERYTHING.",
         gameStart: "TAP TO START", gameOver: "GAME OVER. TAP TO RETRY", gamePause: "PAUSED. TAP TO RESUME", jumpBtn: "JUMP (TAP)"
       },
       ko: {
-        setupTitle: "계정", setupSub: "사용할 닉네임을 입력하세요.",
-        usernameLabel: "아이디", avatarLabel: "아바타 선택",
+        setupTitle: "계정", setupSub: "사용할 아이디와 비밀번호를 입력하세요.",
+        usernameLabel: "아이디", passwordLabel: "비밀번호", avatarLabel: "아바타 선택",
         enterBtn: "입장하기",
         menuMsg: "메시지", menuFriends: "친구들", menuGame: "노키 런", menuProfile: "프로필", menuThemes: "테마", menuSettings: "설정",
         titleMsg: "메시지", addFriendBtn: "+ 친구 추가",
@@ -795,8 +806,24 @@
         titleProfile: "프로필", editNameLabel: "이름 수정", editAvatarLabel: "아바타 수정", saveIdentityBtn: "저장하기",
         titleThemes: "테마", themeSub: "폰 스킨을 변경하세요.",
         titleSettings: "설정", homeBtn: "홈", logoutBtn: "로그아웃", deleteAccountBtn: "계정 삭제",
+        adminBtn: "개발자", backBtn: "뒤로",
         sendBtn: "전송", confirmRemove: "친구와 채팅을 삭제할까요?", confirmDelete: "정말 삭제하시겠습니까? 모든 데이터가 삭제됩니다.",
         gameStart: "시작하려면 탭하세요", gameOver: "게임 오버. 다시 탭하세요", gamePause: "일시정지. 계속하려면 탭하세요", jumpBtn: "점프 (탭)"
+      },
+      id: {
+        setupTitle: "AKUN", setupSub: "Pilih username dan password.",
+        usernameLabel: "Username", passwordLabel: "Password", avatarLabel: "Pilih Avatar",
+        enterBtn: "MASUK NOKI NOKI",
+        menuMsg: "Pesan", menuFriends: "Teman", menuGame: "Noki Run", menuProfile: "Profil", menuThemes: "Tema", menuSettings: "Pengaturan",
+        titleMsg: "PESAN", addFriendBtn: "+ TAMBAH TEMAN",
+        titleFriends: "TEMAN", yourCodeText: "Kode temanmu", copyBtn: "SALIN KODE",
+        addCodeLabel: "Tambah kode teman", addFriendAction: "TAMBAH TEMAN", friendListLabel: "DAFTAR TEMAN",
+        titleProfile: "PROFIL", editNameLabel: "Ubah Nama", editAvatarLabel: "Ubah Avatar", saveIdentityBtn: "SIMPAN IDENTITAS",
+        titleThemes: "TEMA", themeSub: "Ubah tampilan hp-mu.",
+        titleSettings: "PENGATURAN", homeBtn: "BERANDA", logoutBtn: "KELUAR", deleteAccountBtn: "HAPUS AKUN",
+        adminBtn: "DEVELOPER", backBtn: "KEMBALI",
+        sendBtn: "KIRIM", confirmRemove: "Hapus teman & chat?", confirmDelete: "Yakin? Ini akan menghapus SEMUANYA.",
+        gameStart: "KETUK UNTUK MULAI", gameOver: "GAME OVER. KETUK UNTUK MENGULANG", gamePause: "JEDA. KETUK UNTUK LANJUT", jumpBtn: "LOMPAT (KETUK)"
       }
     };
 
@@ -806,11 +833,18 @@
         el.innerText = t(el.getAttribute("data-i18n"));
       });
       if (currentLang === "ko") {
-        $("setupName").placeholder = "닉네임 입력";
+        $("setupName").placeholder = "아이디 입력";
+        $("setupPassword").placeholder = "••••••";
         $("editNameInput").placeholder = "새로운 이름...";
         $("messageInput").placeholder = "메시지 입력...";
+      } else if (currentLang === "id") {
+        $("setupName").placeholder = "AWARU";
+        $("setupPassword").placeholder = "••••••";
+        $("editNameInput").placeholder = "Nama baru...";
+        $("messageInput").placeholder = "ketik pesan...";
       } else {
         $("setupName").placeholder = "AWARU";
+        $("setupPassword").placeholder = "••••••";
         $("editNameInput").placeholder = "New name...";
         $("messageInput").placeholder = "type sms...";
       }
@@ -887,7 +921,7 @@
     });
 
     document.addEventListener("click", (e) => {
-      if (e.target.closest("#toggleSoundBtn") || e.target.closest("#gameArea") || e.target.closest("#jumpBtn")) return; 
+      if (e.target.closest("#toggleSoundBtn") || e.target.closest("#gameArea") || e.target.closest("#jumpBtn") || e.target.closest("#toggleLangBtn")) return; 
       if (e.target.closest("button, .friendCard, .themeChoice, .avatarChoice, .removeBtn")) {
         soundClick();
       }
@@ -896,7 +930,7 @@
     // --- GAME LOGIC ---
     let dinoY = 10;
     let dinoVy = 0;
-    let cactusX = 100; // Percentage
+    let cactusX = 100;
     let gScore = 0;
     let gActive = false;
     let gLoop = null;
@@ -904,16 +938,14 @@
     function gameTick() {
       if (!gActive) return;
 
-      // Physics
       dinoY += dinoVy;
-      dinoVy -= 1.5; // Gravity
+      dinoVy -= 1.5; 
       if (dinoY <= 10) {
         dinoY = 10;
         dinoVy = 0;
       }
 
-      // Cactus Move
-      cactusX -= 2.5; // Speed
+      cactusX -= 2.5; 
       if (cactusX < -15) {
         cactusX = 100;
         gScore++;
@@ -921,16 +953,13 @@
         if(gScore > 0 && gScore % 5 === 0) soundScore(); 
       }
 
-      // Apply DOM
       $("dino").style.bottom = dinoY + "px";
       $("cactus").style.left = cactusX + "%";
 
-      // Collision Check
       let gameWidth = $("gameArea").offsetWidth;
       let cPx = (cactusX / 100) * gameWidth;
       
       if (cPx > 5 && cPx < 45 && dinoY < 32) {
-         // HIT
          gActive = false;
          $("gameOverlay").style.display = "flex";
          $("gameOverlay").textContent = t("gameOver");
@@ -964,13 +993,12 @@
     $("jumpBtn").addEventListener("touchstart", doJump, {passive: false});
     $("jumpBtn").addEventListener("mousedown", doJump);
 
-
     // --- MAIN APP VARS ---
     const views = {
       bootView: $("bootView"), setupView: $("setupView"), homeView: $("homeView"),
       inboxView: $("inboxView"), friendsView: $("friendsView"), profileView: $("profileView"),
       themesView: $("themesView"), settingsView: $("settingsView"), chatView: $("chatView"),
-      gameView: $("gameView")
+      gameView: $("gameView"), adminView: $("adminView")
     };
 
     const themes = [
@@ -1020,7 +1048,6 @@
     function hideError(el) { el.textContent = ""; el.classList.remove("show"); }
 
     function showView(viewId) {
-      // Pause game if navigating away
       if (activeView === "gameView" && viewId !== "gameView" && gActive) {
          gActive = false;
          $("gameOverlay").style.display = "flex";
@@ -1056,7 +1083,6 @@
 
     function chatIdFor(a, b) { return [a, b].sort().join("_"); }
 
-    // --- NO PASSWORD AUTH FLOW ---
     async function generateCode() {
       for (let i = 0; i < 25; i++) {
         const code = "NOKI-" + Math.floor(1000 + Math.random() * 9000);
@@ -1066,7 +1092,6 @@
       return "NOKI-" + Date.now().toString().slice(-4);
     }
 
-    // Auto-login check
     setTimeout(() => {
       const savedUid = localStorage.getItem("nokiUid");
       if (savedUid) {
@@ -1094,26 +1119,42 @@
       }
     }, 1200);
 
-    // Main enter button
+    // LOGIN / REGISTER
     $("enterBtn").addEventListener("click", async () => {
       initAudio();
       hideError($("setupError"));
       const rawName = safeText($("setupName").value);
+      const rawPass = safeText($("setupPassword").value);
       const uid = rawName.toLowerCase().replace(/[^a-z0-9]/g, ""); 
       
-      if (uid.length < 3) return showError($("setupError"), "Username must be at least 3 letters or numbers.");
+      if (uid.length < 3) return showError($("setupError"), currentLang === 'id' ? "Username min 3 karakter." : "Username min 3 chars.");
+      if (rawPass.length < 4) return showError($("setupError"), currentLang === 'id' ? "Password min 4 karakter." : "Password min 4 chars.");
 
       $("enterBtn").disabled = true;
       try {
         const userSnap = await get(ref(db, `users/${uid}`));
         if (userSnap.exists()) {
-          profile = userSnap.val();
+          const existingProfile = userSnap.val();
+          
+          // Verify Password
+          if (existingProfile.password && existingProfile.password !== rawPass) {
+             $("enterBtn").disabled = false;
+             return showError($("setupError"), "WRONG PASSWORD");
+          }
+          
+          // Backward compatibility for old testing accounts lacking a password
+          if (!existingProfile.password) {
+            existingProfile.password = rawPass;
+            await update(ref(db, `users/${uid}`), { password: rawPass });
+          }
+
+          profile = existingProfile;
           currentUser = { uid: profile.uid };
           localStorage.setItem("nokiUid", uid);
           localStorage.setItem("nokiProfile", JSON.stringify(profile));
           applyTheme(profile.theme || selectedTheme);
           await update(ref(db, `users/${uid}`), { lastSeen: serverTimestamp() });
-          showToast(currentLang === 'ko' ? "다시 오신 것을 환영합니다!" : "WELCOME BACK!");
+          showToast(currentLang === 'id' ? "SELAMAT DATANG!" : (currentLang === 'ko' ? "환영합니다!" : "WELCOME BACK!"));
           showView("homeView");
           watchFriends();
         } else {
@@ -1122,6 +1163,7 @@
             uid: uid,
             nickname: rawName,
             nicknameLower: uid,
+            password: rawPass,
             avatar: selectedAvatar,
             theme: selectedTheme,
             code,
@@ -1142,7 +1184,7 @@
           currentUser = { uid: uid };
           localStorage.setItem("nokiUid", uid);
           localStorage.setItem("nokiProfile", JSON.stringify(profile));
-          showToast("ACCOUNT CREATED!");
+          showToast(currentLang === 'id' ? "AKUN DIBUAT!" : "ACCOUNT CREATED!");
           showView("homeView");
           watchFriends();
         }
@@ -1158,7 +1200,6 @@
       location.reload();
     });
 
-    // --- ACCOUNT DELETION ---
     async function deleteAccount() {
       if (!profile || !currentUser) return;
       if (!confirm(t("confirmDelete"))) return;
@@ -1186,6 +1227,74 @@
       }
     }
     $("deleteAccountBtn").addEventListener("click", deleteAccount);
+
+
+    // --- ADMIN PANEL LOGIC ---
+    $("adminBtn").addEventListener("click", () => {
+      const pwd = prompt("Enter Admin Password:");
+      if (pwd === "awaruistheadmin") {
+        loadAdminUsers();
+        showView("adminView");
+      } else if (pwd) {
+        showToast("ACCESS DENIED");
+      }
+    });
+
+    async function loadAdminUsers() {
+      const list = $("adminUserList");
+      list.innerHTML = "Loading...";
+      try {
+        const snap = await get(ref(db, 'users'));
+        if (!snap.exists()) { list.innerHTML = "No users found."; return; }
+        
+        list.innerHTML = "";
+        const users = snap.val();
+        Object.values(users).forEach(u => {
+           const card = document.createElement("div");
+           card.className = "friendCard";
+           card.innerHTML = `
+             <div class="friendAvatar">${u.avatar || "💬"}</div>
+             <div class="friendInfo">
+               <div class="friendName">${escapeHTML(u.nickname)}</div>
+               <div class="friendSub">ID: ${u.uid} | PWD: ${u.password || 'none'}</div>
+             </div>
+             <button class="removeBtn">✕</button>
+           `;
+           card.querySelector(".removeBtn").addEventListener("click", async () => {
+             if(confirm(`Delete user ${u.nickname} completely?`)) {
+               await adminDeleteUser(u);
+               loadAdminUsers();
+             }
+           });
+           list.appendChild(card);
+        });
+      } catch(e) {
+        list.innerHTML = "Error loading users.";
+      }
+    }
+
+    async function adminDeleteUser(targetUser) {
+       try {
+         let updates = {};
+         updates[`users/${targetUser.uid}`] = null;
+         if (targetUser.code) updates[`publicCodes/${targetUser.code}`] = null;
+         
+         const friendSnap = await get(ref(db, `friends/${targetUser.uid}`));
+         if (friendSnap.exists()) {
+           const fList = Object.values(friendSnap.val());
+           for (const f of fList) {
+              updates[`friends/${f.uid}/${targetUser.uid}`] = null;
+              updates[`friends/${targetUser.uid}/${f.uid}`] = null;
+              const chatId = chatIdFor(targetUser.uid, f.uid);
+              updates[`conversations/${chatId}`] = null;
+           }
+         }
+         await update(ref(db), updates);
+         showToast("USER DELETED.");
+       } catch (e) {
+         showToast("Error: " + e.message);
+       }
+    }
 
     // --- UI RENDERING ---
     function renderSetupChoices() {
@@ -1245,8 +1354,11 @@
     }
 
     function updateSettingsLabels() {
-      $("toggleSoundBtn").textContent = (currentLang === 'ko' ? "소리: " : "SOUND: ") + (soundEnabled ? "ON" : "OFF");
-      $("toggleLangBtn").textContent = (currentLang === 'ko' ? "언어: 한국어" : "LANGUAGE: ENGLISH");
+      const langNames = { en: "LANGUAGE: ENGLISH", ko: "언어: 한국어", id: "BAHASA: INDONESIA" };
+      const soundLabels = { en: "SOUND: ", ko: "소리: ", id: "SUARA: " };
+      
+      $("toggleSoundBtn").textContent = soundLabels[currentLang] + (soundEnabled ? "ON" : "OFF");
+      $("toggleLangBtn").textContent = langNames[currentLang] || langNames.en;
     }
 
     $("toggleSoundBtn").addEventListener("click", () => {
@@ -1257,7 +1369,10 @@
     });
 
     $("toggleLangBtn").addEventListener("click", () => {
-      currentLang = currentLang === 'en' ? 'ko' : 'en';
+      soundClick(); // Manually play since it returns early on top listener
+      const langs = ['en', 'ko', 'id'];
+      let idx = langs.indexOf(currentLang);
+      currentLang = langs[(idx + 1) % langs.length];
       localStorage.setItem("nokiLang", currentLang);
       applyLang();
     });
@@ -1287,7 +1402,10 @@
       if (!values.length) {
         const empty = document.createElement("div");
         empty.className = "lcdPanel tiny center";
-        empty.textContent = currentLang === 'ko' ? "친구가 없습니다." : "NO FRIENDS YET.";
+        let msg = "NO FRIENDS YET.";
+        if (currentLang === 'ko') msg = "친구가 없습니다.";
+        if (currentLang === 'id') msg = "BELUM ADA TEMAN.";
+        empty.textContent = msg;
         inbox.appendChild(empty);
         return;
       }
@@ -1304,7 +1422,10 @@
       if (!values.length) {
         const empty = document.createElement("div");
         empty.className = "lcdPanel tiny center";
-        empty.textContent = currentLang === 'ko' ? "친구가 없습니다." : "NO FRIENDS YET.";
+        let msg = "NO FRIENDS YET.";
+        if (currentLang === 'ko') msg = "친구가 없습니다.";
+        if (currentLang === 'id') msg = "BELUM ADA TEMAN.";
+        empty.textContent = msg;
         list.appendChild(empty);
         return;
       }
@@ -1381,8 +1502,8 @@
     async function addFriend() {
       if (!profile) return;
       const code = safeText($("friendCodeInput").value).toUpperCase();
-      if (!code) return showToast(currentLang === 'ko' ? "코드를 입력하세요" : "TYPE A FRIEND CODE");
-      if (code === profile.code) return showToast(currentLang === 'ko' ? "본인 코드입니다" : "THAT IS YOUR CODE");
+      if (!code) return showToast(currentLang === 'ko' ? "코드를 입력하세요" : (currentLang === 'id' ? "KETIK KODE" : "TYPE A FRIEND CODE"));
+      if (code === profile.code) return showToast(currentLang === 'ko' ? "본인 코드입니다" : (currentLang === 'id' ? "INI KODEMU SENDIRI" : "THAT IS YOUR CODE"));
 
       $("addFriendBtn").disabled = true;
       try {
@@ -1412,7 +1533,7 @@
         });
 
         $("friendCodeInput").value = "";
-        showToast(currentLang === 'ko' ? "친구 추가됨!" : "FRIEND ADDED!");
+        showToast(currentLang === 'ko' ? "친구 추가됨!" : (currentLang === 'id' ? "TEMAN DITAMBAHKAN!" : "FRIEND ADDED!"));
         openPrivateChat(friendProfile);
       } catch (error) {
         showToast("Add error: " + error.message);
@@ -1509,7 +1630,6 @@
       }
     }
 
-    // --- FULL ACCOUNT MIGRATION ---
     async function saveIdentity() {
       if (!profile || !currentUser) return;
       const newName = safeText($("editNameInput").value, profile.nickname).slice(0, 24);
@@ -1523,7 +1643,6 @@
       
       try {
         if (newUid !== profile.uid) {
-          // Check if taken
           const checkSnap = await get(ref(db, `users/${newUid}`));
           if (checkSnap.exists()) {
              $("saveIdentityBtn").disabled = false;
@@ -1606,7 +1725,7 @@
         
         renderProfile();
         $("saveIdentityBtn").innerText = t("saveIdentityBtn");
-        showToast(currentLang === 'ko' ? "저장 완료" : "IDENTITY SAVED");
+        showToast(currentLang === 'ko' ? "저장 완료" : (currentLang === 'id' ? "IDENTITAS DISIMPAN" : "IDENTITY SAVED"));
       } catch (e) {
         showToast("ERROR: " + e.message);
         $("saveIdentityBtn").innerText = t("saveIdentityBtn");
@@ -1619,7 +1738,7 @@
       if (!profile?.code) return;
       try {
         await navigator.clipboard.writeText(profile.code);
-        showToast(currentLang === 'ko' ? "복사됨!" : "CODE COPIED");
+        showToast(currentLang === 'ko' ? "복사됨!" : (currentLang === 'id' ? "DISALIN!" : "CODE COPIED"));
       } catch {
         prompt("Copy your code:", profile.code);
       }
