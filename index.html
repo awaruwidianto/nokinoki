@@ -89,8 +89,8 @@
     }
 
     .phone{
-      width:min(420px,100%);
-      height:min(700px,96vh);
+      width:min(360px,100%); /* Squarer, more classic Nokia shape */
+      height:min(580px,90vh); /* Shorter screen height */
       background:linear-gradient(145deg,var(--body),var(--body2));
       border:5px solid var(--body3);
       border-radius:42px;
@@ -418,6 +418,14 @@
       opacity:.75;
       margin-top:2px;
     }
+    .removeBtn {
+      color: var(--danger);
+      font-weight: 900;
+      font-size: 16px;
+      padding: 0 8px;
+      display: grid;
+      place-items: center;
+    }
 
     .chatView{padding:0}
     .chatHeader{
@@ -523,7 +531,7 @@
     }
     .errorBox.show{display:block}
 
-    @media (max-height:760px){
+    @media (max-height:640px){
       .phone{height:98vh;padding:12px;gap:7px}
       .brand{font-size:18px}
     }
@@ -620,13 +628,16 @@
         <div class="lcdPanel profileCard">
           <div class="bigAvatar" id="profileAvatar">💛</div>
           <div class="profileName" id="profileName">...</div>
-          <div class="tiny" id="profileStatus">...</div>
           <div class="codeBox" id="profileCode">...</div>
         </div>
 
-        <label for="statusInput" data-i18n="statusLabel">Status</label>
-        <textarea id="statusInput" maxlength="90" placeholder="type your status..."></textarea>
-        <button class="screenBtn primary" id="saveStatusBtn" type="button" data-i18n="saveStatusBtn">SAVE STATUS</button>
+        <label for="editNameInput" data-i18n="editNameLabel">Edit Name</label>
+        <input id="editNameInput" maxlength="24" placeholder="New name..." />
+        
+        <label data-i18n="editAvatarLabel">Edit Avatar</label>
+        <div class="avatarGrid" id="editAvatars"></div>
+
+        <button class="screenBtn primary" id="saveIdentityBtn" type="button" data-i18n="saveIdentityBtn">SAVE IDENTITY</button>
         <button class="screenBtn" type="button" data-open="homeView" data-i18n="homeBtn" style="margin-top:auto;">HOME</button>
       </div>
 
@@ -676,7 +687,7 @@
     };
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getDatabase, ref, set, get, update, push, onValue, onChildAdded, query, limitToLast, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
+    import { getDatabase, ref, set, get, update, remove, push, onValue, onChildAdded, query, limitToLast, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
@@ -693,10 +704,10 @@
         titleMsg: "MESSAGES", addFriendBtn: "+ ADD FRIEND",
         titleFriends: "FRIENDS", yourCodeText: "Your friend code", copyBtn: "COPY CODE",
         addCodeLabel: "Add friend code", addFriendAction: "ADD FRIEND", friendListLabel: "FRIEND LIST",
-        titleProfile: "PROFILE", statusLabel: "Status", saveStatusBtn: "SAVE STATUS",
+        titleProfile: "PROFILE", editNameLabel: "Edit Name", editAvatarLabel: "Edit Avatar", saveIdentityBtn: "SAVE IDENTITY",
         titleThemes: "THEMES", themeSub: "Change your phone shell.",
         titleSettings: "SETTINGS", homeBtn: "HOME", logoutBtn: "LOGOUT",
-        sendBtn: "OK"
+        sendBtn: "OK", confirmRemove: "Remove this friend?"
       },
       ko: {
         setupTitle: "계정", setupSub: "사용할 닉네임을 입력하세요.",
@@ -706,10 +717,10 @@
         titleMsg: "메시지", addFriendBtn: "+ 친구 추가",
         titleFriends: "친구들", yourCodeText: "내 친구 코드", copyBtn: "코드 복사",
         addCodeLabel: "친구 코드 추가", addFriendAction: "친구 추가", friendListLabel: "친구 목록",
-        titleProfile: "프로필", statusLabel: "상태", saveStatusBtn: "상태 저장",
+        titleProfile: "프로필", editNameLabel: "이름 수정", editAvatarLabel: "아바타 수정", saveIdentityBtn: "저장하기",
         titleThemes: "테마", themeSub: "폰 스킨을 변경하세요.",
         titleSettings: "설정", homeBtn: "홈", logoutBtn: "로그아웃",
-        sendBtn: "전송"
+        sendBtn: "전송", confirmRemove: "친구를 삭제하시겠습니까?"
       }
     };
 
@@ -720,11 +731,11 @@
       });
       if (currentLang === "ko") {
         $("setupName").placeholder = "닉네임 입력";
-        $("statusInput").placeholder = "상태를 입력하세요...";
+        $("editNameInput").placeholder = "새로운 이름...";
         $("messageInput").placeholder = "메시지 입력...";
       } else {
         $("setupName").placeholder = "AWARU";
-        $("statusInput").placeholder = "type your status...";
+        $("editNameInput").placeholder = "New name...";
         $("messageInput").placeholder = "type sms...";
       }
       updateSettingsLabels();
@@ -741,7 +752,6 @@
       if (audioCtx.state === 'suspended') {
         audioCtx.resume();
       }
-      // Audio unlock hack for iOS Safari / Instagram WebView
       if (!audioCtx._unlocked) {
         const buffer = audioCtx.createBuffer(1, 1, 22050);
         const source = audioCtx.createBufferSource();
@@ -752,7 +762,6 @@
       }
     }
 
-    // Bind multiple events globally once to unlock the audio context for strict browsers
     const unlockEvents = ['click', 'touchstart', 'keydown'];
     const unlockAudio = () => {
       initAudio();
@@ -775,12 +784,11 @@
         
         const now = audioCtx.currentTime;
         
-        // Fix for never-ending beep: missing .gain and using the proper Web Audio clock 
         gain.gain.setValueAtTime(1, now);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
         
         osc.start(now);
-        osc.stop(now + duration); // Stop accurately based on context time
+        osc.stop(now + duration);
       } catch (e) {
         console.warn("Audio error:", e);
       }
@@ -791,7 +799,6 @@
       playBeep(800, 'sine', 0.1);
       setTimeout(() => playBeep(1200, 'sine', 0.15), 100);
     }
-    // Made the click sound much shorter (0.025s) so it's snappy and doesn't hurt the ears!
     function soundClick() { playBeep(450, 'square', 0.025); }
 
     let lastTypeTime = 0;
@@ -802,10 +809,9 @@
       }
     });
 
-    // Listen for general clicks to trigger the UI click sound
     document.addEventListener("click", (e) => {
-      if (e.target.closest("#toggleSoundBtn")) return; // Toggle button already handles its own beep
-      if (e.target.closest("button, .friendCard, .themeChoice, .avatarChoice")) {
+      if (e.target.closest("#toggleSoundBtn")) return; 
+      if (e.target.closest("button, .friendCard, .themeChoice, .avatarChoice, .removeBtn")) {
         soundClick();
       }
     });
@@ -831,6 +837,7 @@
     let profile = null;
     let friends = {};
     let selectedAvatar = avatars[0];
+    let editProfileAvatar = avatars[0]; // For profile editor
     let selectedTheme = localStorage.getItem("nokiTheme") || "pink";
     let activeView = "bootView";
     let friendUnsubscribe = null;
@@ -941,7 +948,6 @@
       try {
         const userSnap = await get(ref(db, `users/${uid}`));
         if (userSnap.exists()) {
-          // Username exists! Logging them in
           profile = userSnap.val();
           currentUser = { uid: profile.uid };
           localStorage.setItem("nokiUid", uid);
@@ -952,7 +958,6 @@
           showView("homeView");
           watchFriends();
         } else {
-          // Username doesn't exist, creating a new one
           const code = await generateCode();
           profile = {
             uid: uid,
@@ -960,7 +965,6 @@
             nicknameLower: uid,
             avatar: selectedAvatar,
             theme: selectedTheme,
-            status: "New on NOKI NOKI",
             code,
             createdAt: Date.now(),
             lastSeen: Date.now()
@@ -1009,6 +1013,23 @@
           renderSetupChoices();
         });
         avatarBox.appendChild(button);
+      });
+    }
+
+    function renderEditAvatars() {
+      const box = $("editAvatars");
+      if(!box) return;
+      box.innerHTML = "";
+      avatars.forEach(avatar => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "avatarChoice" + (avatar === editProfileAvatar ? " selected" : "");
+        btn.textContent = avatar;
+        btn.addEventListener("click", () => {
+          editProfileAvatar = avatar;
+          renderEditAvatars();
+        });
+        box.appendChild(btn);
       });
     }
 
@@ -1062,10 +1083,12 @@
       if (!profile) return;
       $("profileAvatar").textContent = profile.avatar;
       $("profileName").textContent = profile.nickname;
-      $("profileStatus").textContent = profile.status || "No status";
       $("profileCode").textContent = profile.code;
       $("myCodeBox").textContent = profile.code;
-      $("statusInput").value = profile.status || "";
+      
+      $("editNameInput").value = profile.nickname || "";
+      editProfileAvatar = profile.avatar || avatars[0];
+      renderEditAvatars();
     }
 
     function renderInbox() {
@@ -1101,15 +1124,20 @@
             .forEach(friend => list.appendChild(friendButton(friend, false)));
     }
 
-    function friendButton(friend, showUnread) {
+    function friendButton(friend, isInbox) {
       const card = document.createElement("div");
       card.className = "friendCard";
       card.role = "button";
       card.tabIndex = 0;
       
       let badgeHTML = '';
-      if (showUnread && friend.unread) {
+      if (isInbox && friend.unread) {
         badgeHTML = `<span class="unreadBadge">${friend.unread}</span>`;
+      }
+
+      let rightSide = `<div>›</div>`;
+      if (!isInbox) {
+        rightSide = `<div class="removeBtn" data-uid="${friend.uid}">✕</div>`;
       }
 
       card.innerHTML = `
@@ -1118,10 +1146,31 @@
           <div class="friendName">${escapeHTML(friend.nickname || "Friend")} ${badgeHTML}</div>
           <div class="friendSub">${escapeHTML(friend.code || "NOKI")}</div>
         </div>
-        <div>›</div>
+        ${rightSide}
       `;
-      card.addEventListener("click", () => openPrivateChat(friend));
+      
+      card.addEventListener("click", (e) => {
+        if (!isInbox && e.target.classList.contains("removeBtn")) {
+          e.stopPropagation();
+          removeFriend(friend);
+        } else {
+          openPrivateChat(friend);
+        }
+      });
       return card;
+    }
+
+    async function removeFriend(friend) {
+      if (!profile || !friend.uid) return;
+      if (!confirm(t("confirmRemove"))) return;
+      
+      try {
+        await remove(ref(db, `friends/${profile.uid}/${friend.uid}`));
+        await remove(ref(db, `friends/${friend.uid}/${profile.uid}`));
+        showToast(currentLang === 'ko' ? "삭제됨" : "Friend removed");
+      } catch(e) {
+        showToast("Error: " + e.message);
+      }
     }
 
     function watchFriends() {
@@ -1158,7 +1207,6 @@
         if (!userSnap.exists()) return showToast("User missing");
 
         const friendProfile = userSnap.val();
-        const chatId = chatIdFor(profile.uid, targetUid);
 
         await update(ref(db), {
           [`friends/${profile.uid}/${targetUid}`]: {
@@ -1273,14 +1321,33 @@
       }
     }
 
-    async function saveStatus() {
+    async function saveIdentity() {
       if (!profile || !currentUser) return;
-      const status = safeText($("statusInput").value, "No status").slice(0, 90);
-      profile.status = status;
+      const newName = safeText($("editNameInput").value, profile.nickname).slice(0, 24);
+      
+      if (newName.length < 3) {
+        return showToast("Name too short!");
+      }
+
+      profile.nickname = newName;
+      profile.avatar = editProfileAvatar;
+      
       localStorage.setItem("nokiProfile", JSON.stringify(profile));
-      await update(ref(db, `users/${currentUser.uid}`), { status });
+      
+      const updates = {
+        [`users/${currentUser.uid}/nickname`]: newName,
+        [`users/${currentUser.uid}/avatar`]: editProfileAvatar
+      };
+
+      if (profile.code) {
+        updates[`publicCodes/${profile.code}/nickname`] = newName;
+        updates[`publicCodes/${profile.code}/avatar`] = editProfileAvatar;
+      }
+
+      await update(ref(db), updates);
+      
       renderProfile();
-      showToast(currentLang === 'ko' ? "저장 완료" : "Status saved");
+      showToast(currentLang === 'ko' ? "저장 완료" : "Identity saved");
     }
 
     async function copyCode() {
@@ -1297,7 +1364,7 @@
     document.addEventListener("click", (e) => { const ob = e.target.closest("[data-open]"); if (ob) showView(ob.dataset.open); });
 
     $("copyCodeBtn").addEventListener("click", copyCode);
-    $("saveStatusBtn").addEventListener("click", saveStatus);
+    $("saveIdentityBtn").addEventListener("click", saveIdentity);
     $("addFriendBtn").addEventListener("click", addFriend);
     $("goHomeBtn").addEventListener("click", () => showView("homeView"));
     $("chatBackBtn").addEventListener("click", () => {
