@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NOKI NOKI</title>
+  <style>
+    :root{
+      --body:#f9cfe2;
+      --body2:#ffc1dd;
+      --body3:#e99cc5;
+      --screen:#e8ffdc;
+      --screen2:#d5f4c7;
+      --screenBorder:#8aad80;
+      --ink:#203a26;
+      --inkSoft:rgba(32,58,38,.7);
+      --button:#fff7fb;
+      --button2:#ffe6f2;
+      --buttonBorder:#d886b4;
+      --buttonShadow:#bf6d9b;
+      --accent:#ff7db6;
+      --wall1:#fff8fc;
+      --wall2:#ffe2f1;
+      --panel:rgba(255,255,255,.45);
+      --danger:#c94b67;
+    }
+
+    body.theme-pink{
+      --body:#f9cfe2; --body2:#ffc1dd; --body3:#e99cc5;
+      --screen:#e8ffdc; --screen2:#d5f4c7; --screenBorder:#8aad80;
+      --ink:#203a26; --button:#fff7fb; --button2:#ffe6f2;
+      --buttonBorder:#d886b4; --buttonShadow:#bf6d9b; --accent:#ff7db6;
+      --wall1:#fff8fc; --wall2:#ffe2f1;
+    }
+    body.theme-yellow{
+      --body:#ffe8a8; --body2:#ffd76b; --body3:#dfb449;
+      --screen:#dff7ff; --screen2:#c8effb; --screenBorder:#76aaba;
+      --ink:#283b46; --button:#fff9df; --button2:#ffefb7;
+      --buttonBorder:#d8b243; --buttonShadow:#bd9632; --accent:#ffc928;
+      --wall1:#fff9df; --wall2:#e8f8ff;
+    }
+    body.theme-blue{
+      --body:#d2ebff; --body2:#a8d8ff; --body3:#7eb8e8;
+      --screen:#fff2c5; --screen2:#ffe7a6; --screenBorder:#c2a14d;
+      --ink:#253747; --button:#f3fbff; --button2:#d8efff;
+      --buttonBorder:#78acd6; --buttonShadow:#5d95bd; --accent:#69bdff;
+      --wall1:#f2fbff; --wall2:#fff3d1;
+    }
+    body.theme-mint{
+      --body:#ccf4df; --body2:#a9eccc; --body3:#7bcaa4;
+      --screen:#f7e0ff; --screen2:#edcaff; --screenBorder:#aa82be;
+      --ink:#243f35; --button:#f2fff8; --button2:#d8f9e9;
+      --buttonBorder:#72c39b; --buttonShadow:#55a77d; --accent:#61d89e;
+      --wall1:#f0fff7; --wall2:#fae9ff;
+    }
+    body.theme-lavender{
+      --body:#e4d6ff; --body2:#d0b9ff; --body3:#aa8ce4;
+      --screen:#e8ffd6; --screen2:#dafac4; --screenBorder:#94b97d;
+      --ink:#342d47; --button:#fbf8ff; --button2:#eadfff;
+      --buttonBorder:#a387dc; --buttonShadow:#8369bd; --accent:#b494ff;
+      --wall1:#fbf8ff; --wall2:#eefee1;
+    }
+    body.theme-classic{
+      --body:#cfd3cc; --body2:#b4bbb2; --body3:#8d978d;
+      --screen:#d7e7b8; --screen2:#c7d9a3; --screenBorder:#788665;
+      --ink:#1d2b20; --button:#eceee8; --button2:#d7dbd3;
+      --buttonBorder:#8d978d; --buttonShadow:#747e73; --accent:#7d8b77;
+      --wall1:#eff1ec; --wall2:#d4dad0;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:12px;
+      font-family:"Courier New", Courier, monospace;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 15% 18%, var(--wall1) 0 18%, transparent 18%),
+        radial-gradient(circle at 80% 12%, var(--body2) 0 15%, transparent 15%),
+        radial-gradient(circle at 75% 82%, var(--wall1) 0 12%, transparent 12%),
+        linear-gradient(135deg,var(--wall2),#fffdf8);
+      transition:background .25s ease;
+    }
+
+    .phone{
+      width:min(420px,100%);
+      height:min(850px,96vh);
+      background:linear-gradient(145deg,var(--body),var(--body2));
+      border:5px solid var(--body3);
+      border-radius:54px 54px 42px 42px;
+      box-shadow:
+        inset 0 0 0 4px rgba(255,255,255,.42),
+        inset 0 -25px 45px rgba(0,0,0,.08),
+        0 26px 60px rgba(70,40,55,.25);
+      padding:18px 16px 16px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      user-select:none;
+    }
+
+    .brand{
+      text-align:center;
+      letter-spacing:5px;
+      font-weight:900;
+      font-size:21px;
+      color:var(--ink);
+      opacity:.76;
+      text-shadow:1px 1px rgba(255,255,255,.75);
+    }
+
+    .speaker{
+      width:88px;
+      height:10px;
+      border-radius:99px;
+      margin:0 auto;
+      background:rgba(0,0,0,.23);
+      box-shadow:inset 0 2px 4px rgba(0,0,0,.2);
+    }
+
+    .screen{
+      flex:1;
+      min-height:0;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+      border:5px solid var(--screenBorder);
+      border-radius:19px;
+      background:
+        linear-gradient(rgba(255,255,255,.16) 50%, rgba(0,0,0,.025) 50%) 0 0/100% 6px,
+        linear-gradient(180deg,var(--screen),var(--screen2));
+      box-shadow:
+        inset 0 0 20px rgba(0,0,0,.16),
+        0 7px 15px rgba(255,255,255,.25);
+      position:relative;
+    }
+
+    .statusbar{
+      height:31px;
+      padding:5px 9px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+      border-bottom:2px solid rgba(0,0,0,.18);
+      background:rgba(255,255,255,.26);
+      font-size:11px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    .statusbar span:nth-child(2){
+      max-width:120px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      text-align:center;
+    }
+
+    .view{
+      flex:1;
+      min-height:0;
+      display:none;
+      flex-direction:column;
+      padding:12px;
+      overflow:auto;
+    }
+    .view.active{display:flex}
+
+    .boot{
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      gap:14px;
+    }
+    .bootLogo{
+      font-size:26px;
+      letter-spacing:5px;
+      font-weight:900;
+      animation:bootPulse 1s infinite alternate;
+    }
+    .bootText{font-weight:900;font-size:12px}
+    .loadingBar{
+      width:80%;
+      height:19px;
+      border:2px solid var(--ink);
+      padding:2px;
+      background:rgba(255,255,255,.25);
+    }
+    .loadingFill{
+      height:100%;
+      width:0%;
+      background:var(--ink);
+      animation:load 2.1s forwards;
+    }
+    @keyframes load{to{width:100%}}
+    @keyframes bootPulse{from{opacity:.65}to{opacity:1}}
+
+    h1,h2,h3,p{margin:0}
+    .title{
+      font-size:19px;
+      font-weight:900;
+      letter-spacing:1px;
+      text-align:center;
+      margin-bottom:8px;
+    }
+    .subtitle{
+      text-align:center;
+      font-size:12px;
+      line-height:1.45;
+      opacity:.82;
+      margin-bottom:10px;
+    }
+    .lcdPanel{
+      border:2px solid var(--ink);
+      background:var(--panel);
+      box-shadow:3px 3px 0 rgba(0,0,0,.13);
+      padding:10px;
+      border-radius:2px;
+      margin-bottom:10px;
+    }
+
+    input, textarea{
+      width:100%;
+      border:2px solid var(--screenBorder);
+      background:rgba(255,255,255,.58);
+      color:var(--ink);
+      font-family:"Courier New", Courier, monospace;
+      font-weight:900;
+      padding:11px;
+      border-radius:4px;
+      outline:none;
+      user-select:text;
+    }
+    textarea{resize:none;min-height:72px}
+    input::placeholder, textarea::placeholder{color:rgba(0,0,0,.42)}
+    label{
+      display:block;
+      font-size:11px;
+      font-weight:900;
+      margin:7px 0 4px;
+      text-transform:uppercase;
+    }
+
+    .row{display:flex;gap:8px;align-items:center}
+    .row > *{flex:1}
+    .tiny{font-size:11px;line-height:1.45;opacity:.82}
+    .center{text-align:center}
+    .hidden{display:none!important}
+
+    .screenBtn, .menuItem, .themeChoice, .avatarChoice, .friendCard{
+      width:100%;
+      border:2px solid var(--ink);
+      background:rgba(255,255,255,.42);
+      color:var(--ink);
+      padding:10px;
+      border-radius:3px;
+      text-align:left;
+      font-family:"Courier New", Courier, monospace;
+      font-weight:900;
+      box-shadow:3px 3px 0 rgba(0,0,0,.14);
+      cursor:pointer;
+      user-select:none;
+    }
+    .screenBtn{
+      text-align:center;
+      background:rgba(255,255,255,.58);
+    }
+    .screenBtn.primary{
+      background:var(--ink);
+      color:var(--screen);
+    }
+    .screenBtn.danger{
+      color:var(--danger);
+      border-color:var(--danger);
+    }
+    .screenBtn:active, .menuItem:active, .themeChoice:active, .avatarChoice:active, .friendCard:active{
+      transform:translate(2px,2px);
+      box-shadow:1px 1px 0 rgba(0,0,0,.16);
+    }
+
+    .menuList{
+      display:grid;
+      gap:8px;
+    }
+    .menuItem{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      font-size:14px;
+    }
+    .menuIcon{font-size:20px;width:34px;text-align:center}
+    .menuText{flex:1}
+    .menuArrow{opacity:.7}
+
+    .homeClock{
+      font-size:34px;
+      font-weight:900;
+      text-align:center;
+      letter-spacing:2px;
+      margin:6px 0 10px;
+    }
+    .homeHello{
+      text-align:center;
+      font-weight:900;
+      margin-bottom:10px;
+    }
+
+    .avatarGrid,.themeGrid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:7px;
+      margin:8px 0;
+    }
+    .avatarChoice{
+      font-size:25px;
+      text-align:center;
+      padding:9px 4px;
+    }
+    .avatarChoice.selected,.themeChoice.selected{
+      outline:3px solid var(--accent);
+      background:rgba(255,255,255,.75);
+    }
+
+    .themeGrid{grid-template-columns:repeat(2,1fr)}
+    .themeChoice{
+      min-height:54px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      font-size:12px;
+    }
+    .swatch{
+      width:28px;
+      height:28px;
+      border-radius:7px;
+      border:2px solid var(--ink);
+      flex:none;
+    }
+    .swatch.pink{background:#ffc1dd}
+    .swatch.yellow{background:#ffd76b}
+    .swatch.blue{background:#a8d8ff}
+    .swatch.mint{background:#a9eccc}
+    .swatch.lavender{background:#d0b9ff}
+    .swatch.classic{background:#b4bbb2}
+
+    .profileCard{
+      text-align:center;
+    }
+    .bigAvatar{
+      font-size:52px;
+      line-height:1;
+      margin-bottom:6px;
+    }
+    .profileName{
+      font-weight:900;
+      font-size:18px;
+      text-transform:uppercase;
+    }
+    .codeBox{
+      border:2px dashed var(--ink);
+      padding:9px;
+      font-weight:900;
+      text-align:center;
+      letter-spacing:1px;
+      background:rgba(255,255,255,.32);
+      margin:7px 0;
+      user-select:text;
+    }
+
+    .friendCard{
+      display:flex;
+      align-items:center;
+      gap:9px;
+      margin-bottom:8px;
+    }
+    .friendAvatar{
+      width:38px;
+      height:38px;
+      border:2px solid var(--ink);
+      display:grid;
+      place-items:center;
+      font-size:23px;
+      background:rgba(255,255,255,.45);
+      flex:none;
+    }
+    .friendInfo{flex:1;min-width:0}
+    .friendName{
+      font-size:13px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      text-transform:uppercase;
+    }
+    .friendSub{
+      font-size:10px;
+      opacity:.75;
+      margin-top:2px;
+    }
+
+    .chatView{padding:0}
+    .chatHeader{
+      padding:8px 10px;
+      border-bottom:2px solid rgba(0,0,0,.18);
+      background:rgba(255,255,255,.2);
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-weight:900;
+    }
+    .chatBack{
+      width:auto;
+      min-width:42px;
+      padding:6px;
+      border:2px solid var(--ink);
+      background:rgba(255,255,255,.45);
+      box-shadow:none;
+      color:var(--ink);
+      font-family:"Courier New", Courier, monospace;
+      font-weight:900;
+      cursor:pointer;
+    }
+    .chatTitle{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .messages{
+      flex:1;
+      overflow:auto;
+      padding:10px;
+    }
+    .smsLine{
+      margin:0 0 10px;
+      padding:8px;
+      border-left:4px solid var(--ink);
+      background:rgba(255,255,255,.28);
+      box-shadow:2px 2px 0 rgba(0,0,0,.09);
+      word-break:break-word;
+    }
+    .smsLine.mine{
+      border-left:0;
+      border-right:4px solid var(--ink);
+      text-align:right;
+      background:rgba(255,255,255,.48);
+    }
+    .smsMeta{
+      font-size:10px;
+      font-weight:900;
+      opacity:.75;
+      margin-bottom:4px;
+      text-transform:uppercase;
+    }
+    .smsText{
+      font-size:13px;
+      line-height:1.35;
+      white-space:pre-wrap;
+      user-select:text;
+    }
+    .composer{
+      border-top:2px solid rgba(0,0,0,.18);
+      padding:8px;
+      display:flex;
+      gap:6px;
+      background:rgba(255,255,255,.2);
+    }
+    .composer input{
+      padding:10px;
+      font-size:13px;
+    }
+    .composer .sendBtn{
+      flex:0 0 52px;
+      padding:0;
+      text-align:center;
+    }
+
+    .toast{
+      position:absolute;
+      left:12px;
+      right:12px;
+      bottom:12px;
+      padding:9px;
+      border:2px solid var(--ink);
+      background:var(--screen);
+      box-shadow:3px 3px 0 rgba(0,0,0,.18);
+      font-size:12px;
+      font-weight:900;
+      display:none;
+      z-index:5;
+      text-align:center;
+    }
+    .toast.show{display:block}
+
+    .softkeys{
+      display:grid;
+      grid-template-columns:1fr 72px 1fr;
+      align-items:center;
+      gap:10px;
+      padding:0 22px;
+    }
+    .softkeys button{
+      height:36px;
+      border-radius:999px;
+    }
+    .centerKey{
+      height:72px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      border:3px solid var(--buttonBorder);
+      background:linear-gradient(180deg,#fff,var(--button2));
+      box-shadow:0 6px 0 var(--buttonShadow);
+      font-size:22px;
+      font-weight:900;
+      cursor:pointer;
+    }
+
+    .keypad{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:8px;
+      padding:0 10px 2px;
+    }
+    button.phoneBtn{
+      min-height:48px;
+      border:2px solid var(--buttonBorder);
+      border-radius:15px;
+      background:linear-gradient(180deg,#fff,var(--button));
+      color:var(--ink);
+      box-shadow:0 5px 0 var(--buttonShadow);
+      font-family:"Courier New", Courier, monospace;
+      font-weight:900;
+      cursor:pointer;
+      touch-action:manipulation;
+      user-select:none;
+    }
+    button.phoneBtn:active,.centerKey:active{
+      transform:translateY(4px);
+      box-shadow:0 1px 0 var(--buttonShadow);
+    }
+    button.phoneBtn small{font-size:10px;opacity:.82}
+
+    .errorBox{
+      border:2px solid var(--danger);
+      color:var(--danger);
+      background:rgba(255,255,255,.45);
+      padding:10px;
+      font-size:12px;
+      font-weight:900;
+      line-height:1.45;
+      user-select:text;
+      display:none;
+    }
+    .errorBox.show{display:block}
+
+    @media (max-height:760px){
+      .phone{height:98vh;padding:12px;gap:7px}
+      .keypad{gap:6px}
+      button.phoneBtn{min-height:42px;padding:4px}
+      .softkeys{grid-template-columns:1fr 58px 1fr}
+      .centerKey{height:58px}
+      .brand{font-size:18px}
+    }
+  </style>
+</head>
+<body class="theme-pink">
+  <main class="phone" aria-label="NOKI NOKI phone">
+    <div class="brand">NOKI NOKI</div>
+    <div class="speaker"></div>
+
+    <section class="screen">
+      <div class="statusbar">
+        <span id="signal">▰▰▰</span>
+        <span id="screenTitle">BOOT</span>
+        <span><span id="clock">00:00</span> 🔋</span>
+      </div>
+
+      <div id="bootView" class="view boot active">
+        <div class="bootLogo">NOKI<br>NOKI</div>
+        <div class="bootText">powered by AWARU</div>
+        <div class="loadingBar"><div class="loadingFill"></div></div>
+        <div class="tiny center" id="bootStatus">Connecting...</div>
+      </div>
+
+      <div id="setupView" class="view">
+        <h1 class="title">SETUP PHONE</h1>
+        <p class="subtitle">Create your tiny NOKI identity.</p>
+
+        <div class="errorBox" id="setupError"></div>
+
+        <label for="setupName">Nickname</label>
+        <input id="setupName" maxlength="24" placeholder="AWARU" autocomplete="nickname" />
+
+        <label>Avatar</label>
+        <div class="avatarGrid" id="setupAvatars"></div>
+
+        <label>Phone color</label>
+        <div class="themeGrid" id="setupThemes"></div>
+
+        <button class="screenBtn primary" id="finishSetupBtn" type="button">START NOKI OS</button>
+      </div>
+
+      <div id="homeView" class="view">
+        <div class="homeClock" id="homeClock">00:00</div>
+        <div class="homeHello" id="homeHello">HELLO</div>
+        <div class="menuList">
+          <button class="menuItem" type="button" data-open="inboxView">
+            <span class="menuIcon">💬</span><span class="menuText">Messages</span><span class="menuArrow">›</span>
+          </button>
+          <button class="menuItem" type="button" data-open="friendsView">
+            <span class="menuIcon">👥</span><span class="menuText">Friends</span><span class="menuArrow">›</span>
+          </button>
+          <button class="menuItem" type="button" data-open="profileView">
+            <span class="menuIcon">⭐</span><span class="menuText">Profile</span><span class="menuArrow">›</span>
+          </button>
+          <button class="menuItem" type="button" data-open="themesView">
+            <span class="menuIcon">🎨</span><span class="menuText">Themes</span><span class="menuArrow">›</span>
+          </button>
+          <button class="menuItem" type="button" data-open="settingsView">
+            <span class="menuIcon">⚙</span><span class="menuText">Settings</span><span class="menuArrow">›</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="inboxView" class="view">
+        <h2 class="title">MESSAGES</h2>
+        <div class="friendCard" id="openLobbyBtn" role="button" tabindex="0">
+          <div class="friendAvatar">📡</div>
+          <div class="friendInfo">
+            <div class="friendName">NOKI LOBBY</div>
+            <div class="friendSub">Everyone with the link</div>
+          </div>
+          <div>›</div>
+        </div>
+        <div id="inboxFriends"></div>
+        <button class="screenBtn" type="button" data-open="friendsView">+ ADD FRIEND</button>
+      </div>
+
+      <div id="friendsView" class="view">
+        <h2 class="title">FRIENDS</h2>
+        <div class="lcdPanel profileCard">
+          <div class="tiny">Your friend code</div>
+          <div class="codeBox" id="myCodeBox">...</div>
+          <button class="screenBtn" id="copyCodeBtn" type="button">COPY CODE</button>
+        </div>
+
+        <label for="friendCodeInput">Add friend code</label>
+        <input id="friendCodeInput" maxlength="16" placeholder="NOKI-1234" autocomplete="off" />
+        <button class="screenBtn primary" id="addFriendBtn" type="button">ADD FRIEND</button>
+
+        <h3 class="title" style="font-size:15px;margin-top:12px;">FRIEND LIST</h3>
+        <div id="friendsList"></div>
+      </div>
+
+      <div id="profileView" class="view">
+        <h2 class="title">PROFILE</h2>
+        <div class="lcdPanel profileCard">
+          <div class="bigAvatar" id="profileAvatar">💛</div>
+          <div class="profileName" id="profileName">...</div>
+          <div class="tiny" id="profileStatus">...</div>
+          <div class="codeBox" id="profileCode">...</div>
+        </div>
+
+        <label for="statusInput">Status</label>
+        <textarea id="statusInput" maxlength="90" placeholder="type your status..."></textarea>
+        <button class="screenBtn primary" id="saveStatusBtn" type="button">SAVE STATUS</button>
+      </div>
+
+      <div id="themesView" class="view">
+        <h2 class="title">THEMES</h2>
+        <p class="subtitle">Change your phone shell.</p>
+        <div class="themeGrid" id="themeChoices"></div>
+      </div>
+
+      <div id="settingsView" class="view">
+        <h2 class="title">SETTINGS</h2>
+        <div class="lcdPanel">
+          <p class="tiny"><b>Firebase:</b> Connected to your NOKI NOKI project.</p>
+          <p class="tiny"><b>Storage:</b> Not used, so this stays on the free plan.</p>
+        </div>
+        <button class="screenBtn" id="goHomeBtn" type="button">HOME</button>
+        <button class="screenBtn danger" id="resetLocalBtn" type="button">RESET THIS PHONE</button>
+      </div>
+
+      <div id="chatView" class="view chatView">
+        <div class="chatHeader">
+          <button class="chatBack" id="chatBackBtn" type="button">‹</button>
+          <div id="chatHeaderAvatar">💬</div>
+          <div class="chatTitle" id="chatTitle">CHAT</div>
+        </div>
+        <div class="messages" id="messages"></div>
+        <form class="composer" id="messageForm">
+          <input id="messageInput" maxlength="500" placeholder="type sms..." autocomplete="off" />
+          <button class="screenBtn sendBtn" type="submit">OK</button>
+        </form>
+      </div>
+
+      <div class="toast" id="toast"></div>
+    </section>
+
+    <div class="softkeys">
+      <button class="phoneBtn" id="menuBtn" type="button">MENU</button>
+      <div class="centerKey" id="okBtn" role="button" tabindex="0">OK</div>
+      <button class="phoneBtn" id="delBtn" type="button">DEL</button>
+    </div>
+
+    <div class="keypad" id="keypad">
+      <button class="phoneBtn" type="button" data-key="1" data-letters=".,!?'-">1<br><small>.,!</small></button>
+      <button class="phoneBtn" type="button" data-key="2" data-letters="ABC">2<br><small>ABC</small></button>
+      <button class="phoneBtn" type="button" data-key="3" data-letters="DEF">3<br><small>DEF</small></button>
+      <button class="phoneBtn" type="button" data-key="4" data-letters="GHI">4<br><small>GHI</small></button>
+      <button class="phoneBtn" type="button" data-key="5" data-letters="JKL">5<br><small>JKL</small></button>
+      <button class="phoneBtn" type="button" data-key="6" data-letters="MNO">6<br><small>MNO</small></button>
+      <button class="phoneBtn" type="button" data-key="7" data-letters="PQRS">7<br><small>PQRS</small></button>
+      <button class="phoneBtn" type="button" data-key="8" data-letters="TUV">8<br><small>TUV</small></button>
+      <button class="phoneBtn" type="button" data-key="9" data-letters="WXYZ">9<br><small>WXYZ</small></button>
+      <button class="phoneBtn" type="button" data-action="theme">*</button>
+      <button class="phoneBtn" type="button" data-action="space">0<br><small>SPACE</small></button>
+      <button class="phoneBtn" type="button" data-action="send">#</button>
+    </div>
+  </main>
+
+  <script type="module">
+    const firebaseConfig = {
+      apiKey: "AIzaSyDg0R36Cprmno-1564iciKuyQXhPrd1ieo",
+      authDomain: "noki-noki-3f23e.firebaseapp.com",
+      databaseURL: "https://noki-noki-3f23e-default-rtdb.asia-southeast1.firebasedatabase.app/",
+      projectId: "noki-noki-3f23e",
+      storageBucket: "noki-noki-3f23e.firebasestorage.app",
+      messagingSenderId: "474998704553",
+      appId: "1:474998704553:web:e0e257d599c413e5289cb8"
+    };
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    import {
+      getDatabase,
+      ref,
+      set,
+      get,
+      update,
+      push,
+      onValue,
+      onChildAdded,
+      query,
+      limitToLast,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    const $ = (id) => document.getElementById(id);
+
+    const views = {
+      bootView: $("bootView"),
+      setupView: $("setupView"),
+      homeView: $("homeView"),
+      inboxView: $("inboxView"),
+      friendsView: $("friendsView"),
+      profileView: $("profileView"),
+      themesView: $("themesView"),
+      settingsView: $("settingsView"),
+      chatView: $("chatView")
+    };
+
+    const themes = [
+      { id:"pink", label:"Sakura Pink", swatch:"pink" },
+      { id:"yellow", label:"Pudding Yellow", swatch:"yellow" },
+      { id:"blue", label:"Ice Blue", swatch:"blue" },
+      { id:"mint", label:"Mint", swatch:"mint" },
+      { id:"lavender", label:"Lavender", swatch:"lavender" },
+      { id:"classic", label:"Classic Grey", swatch:"classic" }
+    ];
+
+    const avatars = ["💛","🌸","🐸","🐱","🐰","⭐","👾","🍓","☁️","🌙","🦋","🍀"];
+
+    let currentUser = null;
+    let profile = null;
+    let friends = {};
+    let selectedAvatar = avatars[0];
+    let selectedTheme = localStorage.getItem("nokiTheme") || "pink";
+    let activeView = "bootView";
+    let activeTextInput = null;
+    let friendUnsubscribe = null;
+    let messageUnsubscribe = null;
+    let currentChat = null;
+    let bootFinished = false;
+    let authFinished = false;
+
+    let lastKey = null;
+    let lastTapAt = 0;
+    let tapIndex = 0;
+    const multiTapDelay = 900;
+
+    function safeText(value, fallback = "") {
+      return String(value || fallback).replace(/[<>]/g, "").trim();
+    }
+
+    function applyTheme(themeId) {
+      const exists = themes.some(t => t.id === themeId);
+      selectedTheme = exists ? themeId : "pink";
+      document.body.className = "theme-" + selectedTheme;
+      localStorage.setItem("nokiTheme", selectedTheme);
+      renderThemeSelections();
+    }
+
+    function showToast(message) {
+      const toast = $("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    function showError(el, message) {
+      el.textContent = message;
+      el.classList.add("show");
+    }
+
+    function hideError(el) {
+      el.textContent = "";
+      el.classList.remove("show");
+    }
+
+    function showView(viewId) {
+      Object.values(views).forEach(v => v.classList.remove("active"));
+      views[viewId].classList.add("active");
+      activeView = viewId;
+      const title = viewId.replace("View","").toUpperCase();
+      $("screenTitle").textContent = title === "HOME" ? "NOKI OS" : title;
+      resetMultiTap();
+
+      if (viewId !== "chatView" && messageUnsubscribe) {
+        messageUnsubscribe();
+        messageUnsubscribe = null;
+        currentChat = null;
+      }
+
+      if (viewId === "homeView") renderHome();
+      if (viewId === "profileView") renderProfile();
+      if (viewId === "inboxView") renderInbox();
+      if (viewId === "friendsView") renderFriends();
+    }
+
+    function maybeStartApp() {
+      if (!bootFinished || !authFinished) return;
+
+      if (!currentUser) {
+        showError($("setupError"), "Firebase sign-in did not finish. Refresh the page.");
+        showView("setupView");
+        return;
+      }
+
+      if (profile) {
+        showView("homeView");
+        watchFriends();
+      } else {
+        showView("setupView");
+        setTimeout(() => $("setupName").focus(), 150);
+      }
+    }
+
+    setTimeout(() => {
+      bootFinished = true;
+      maybeStartApp();
+    }, 2300);
+
+    function updateClock() {
+      const now = new Date();
+      const text = now.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" });
+      $("clock").textContent = text;
+      $("homeClock").textContent = text;
+    }
+    updateClock();
+    setInterval(updateClock, 30000);
+
+    async function initFirebase() {
+      $("bootStatus").textContent = "Signing in...";
+      try {
+        await signInAnonymously(auth);
+      } catch (error) {
+        $("bootStatus").textContent = "Auth error";
+        authFinished = true;
+        showError($("setupError"), "Firebase auth error: " + error.message + ". If you opened this by double-clicking the file, run it on localhost or Firebase Hosting.");
+        maybeStartApp();
+      }
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      currentUser = user;
+      if (!user) return;
+
+      try {
+        $("bootStatus").textContent = "Loading profile...";
+        const userSnap = await get(ref(db, `users/${user.uid}`));
+
+        if (userSnap.exists()) {
+          profile = userSnap.val();
+          localStorage.setItem("nokiProfile", JSON.stringify(profile));
+          applyTheme(profile.theme || selectedTheme);
+          await update(ref(db, `users/${user.uid}`), { lastSeen: serverTimestamp() });
+        } else {
+          const local = JSON.parse(localStorage.getItem("nokiProfile") || "null");
+          if (local && local.uid === user.uid && local.code) {
+            profile = local;
+            await saveProfile(profile);
+          }
+        }
+      } catch (error) {
+        console.error(error);
+        showToast("Firebase read error");
+      } finally {
+        authFinished = true;
+        maybeStartApp();
+      }
+    });
+
+    async function generateCode() {
+      for (let i = 0; i < 25; i++) {
+        const code = "NOKI-" + Math.floor(1000 + Math.random() * 9000);
+        const snap = await get(ref(db, `publicCodes/${code}`));
+        if (!snap.exists()) return code;
+      }
+      return "NOKI-" + Date.now().toString().slice(-4);
+    }
+
+    async function saveProfile(nextProfile) {
+      await update(ref(db), {
+        [`users/${nextProfile.uid}`]: nextProfile,
+        [`publicCodes/${nextProfile.code}`]: {
+          uid: nextProfile.uid,
+          nickname: nextProfile.nickname,
+          avatar: nextProfile.avatar,
+          code: nextProfile.code
+        }
+      });
+      localStorage.setItem("nokiProfile", JSON.stringify(nextProfile));
+    }
+
+    async function finishSetup() {
+      hideError($("setupError"));
+
+      if (!currentUser) {
+        showError($("setupError"), "Still connecting to Firebase. Try again in a few seconds.");
+        return;
+      }
+
+      const nickname = safeText($("setupName").value, "NOKI").slice(0, 24);
+      if (!nickname) {
+        showError($("setupError"), "Please type your nickname.");
+        return;
+      }
+
+      $("finishSetupBtn").disabled = true;
+      $("finishSetupBtn").textContent = "CREATING...";
+
+      try {
+        const code = await generateCode();
+        profile = {
+          uid: currentUser.uid,
+          nickname,
+          nicknameLower: nickname.toLowerCase(),
+          avatar: selectedAvatar,
+          theme: selectedTheme,
+          status: "New on NOKI NOKI",
+          code,
+          createdAt: Date.now(),
+          lastSeen: Date.now()
+        };
+
+        await saveProfile(profile);
+        applyTheme(profile.theme);
+        watchFriends();
+        showView("homeView");
+        showToast("Welcome to NOKI OS");
+      } catch (error) {
+        showError($("setupError"), "Setup error: " + error.message);
+      } finally {
+        $("finishSetupBtn").disabled = false;
+        $("finishSetupBtn").textContent = "START NOKI OS";
+      }
+    }
+
+    function renderSetupChoices() {
+      const avatarBox = $("setupAvatars");
+      avatarBox.innerHTML = "";
+      avatars.forEach(avatar => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "avatarChoice" + (avatar === selectedAvatar ? " selected" : "");
+        button.textContent = avatar;
+        button.addEventListener("click", () => {
+          selectedAvatar = avatar;
+          renderSetupChoices();
+        });
+        avatarBox.appendChild(button);
+      });
+
+      const setupThemes = $("setupThemes");
+      setupThemes.innerHTML = "";
+      themes.forEach(theme => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "themeChoice" + (theme.id === selectedTheme ? " selected" : "");
+        button.innerHTML = `<span class="swatch ${theme.swatch}"></span><span>${theme.label}</span>`;
+        button.addEventListener("click", () => {
+          applyTheme(theme.id);
+          renderSetupChoices();
+        });
+        setupThemes.appendChild(button);
+      });
+    }
+
+    function renderThemeSelections() {
+      const themeBox = $("themeChoices");
+      if (!themeBox) return;
+      themeBox.innerHTML = "";
+
+      themes.forEach(theme => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "themeChoice" + (theme.id === selectedTheme ? " selected" : "");
+        button.innerHTML = `<span class="swatch ${theme.swatch}"></span><span>${theme.label}</span>`;
+        button.addEventListener("click", async () => {
+          applyTheme(theme.id);
+          if (profile && currentUser) {
+            profile.theme = theme.id;
+            localStorage.setItem("nokiProfile", JSON.stringify(profile));
+            await update(ref(db, `users/${currentUser.uid}`), { theme: theme.id });
+          }
+          showToast(theme.label);
+        });
+        themeBox.appendChild(button);
+      });
+    }
+
+    function renderHome() {
+      if (!profile) return;
+      $("homeHello").textContent = `${profile.avatar} ${profile.nickname}`;
+    }
+
+    function renderProfile() {
+      if (!profile) return;
+      $("profileAvatar").textContent = profile.avatar;
+      $("profileName").textContent = profile.nickname;
+      $("profileStatus").textContent = profile.status || "No status";
+      $("profileCode").textContent = profile.code;
+      $("myCodeBox").textContent = profile.code;
+      $("statusInput").value = profile.status || "";
+    }
+
+    function renderInbox() {
+      const inbox = $("inboxFriends");
+      inbox.innerHTML = "";
+
+      const values = Object.values(friends || {});
+      if (!values.length) {
+        const empty = document.createElement("div");
+        empty.className = "lcdPanel tiny center";
+        empty.textContent = "No friends yet. Add a friend code.";
+        inbox.appendChild(empty);
+        return;
+      }
+
+      values
+        .sort((a,b) => (a.nickname || "").localeCompare(b.nickname || ""))
+        .forEach(friend => inbox.appendChild(friendButton(friend)));
+    }
+
+    function renderFriends() {
+      if (profile) $("myCodeBox").textContent = profile.code;
+
+      const list = $("friendsList");
+      list.innerHTML = "";
+
+      const values = Object.values(friends || {});
+      if (!values.length) {
+        const empty = document.createElement("div");
+        empty.className = "lcdPanel tiny center";
+        empty.textContent = "No friends yet.";
+        list.appendChild(empty);
+        return;
+      }
+
+      values
+        .sort((a,b) => (a.nickname || "").localeCompare(b.nickname || ""))
+        .forEach(friend => list.appendChild(friendButton(friend)));
+    }
+
+    function friendButton(friend) {
+      const card = document.createElement("div");
+      card.className = "friendCard";
+      card.role = "button";
+      card.tabIndex = 0;
+      card.innerHTML = `
+        <div class="friendAvatar">${friend.avatar || "💬"}</div>
+        <div class="friendInfo">
+          <div class="friendName">${escapeHTML(friend.nickname || "Friend")}</div>
+          <div class="friendSub">${escapeHTML(friend.code || "NOKI")}</div>
+        </div>
+        <div>›</div>
+      `;
+      card.addEventListener("click", () => openPrivateChat(friend));
+      card.addEventListener("keydown", e => {
+        if (e.key === "Enter") openPrivateChat(friend);
+      });
+      return card;
+    }
+
+    function escapeHTML(value) {
+      return String(value).replace(/[&<>"']/g, char => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#039;"
+      }[char]));
+    }
+
+    function watchFriends() {
+      if (!currentUser || friendUnsubscribe) return;
+      friendUnsubscribe = onValue(ref(db, `friends/${currentUser.uid}`), snap => {
+        friends = snap.val() || {};
+        if (activeView === "inboxView") renderInbox();
+        if (activeView === "friendsView") renderFriends();
+      });
+    }
+
+    async function addFriend() {
+      if (!profile) return;
+
+      const code = safeText($("friendCodeInput").value).toUpperCase();
+      if (!code) {
+        showToast("Type a friend code");
+        return;
+      }
+
+      if (code === profile.code) {
+        showToast("That is your code");
+        return;
+      }
+
+      $("addFriendBtn").disabled = true;
+      $("addFriendBtn").textContent = "ADDING...";
+
+      try {
+        const codeSnap = await get(ref(db, `publicCodes/${code}`));
+        if (!codeSnap.exists()) {
+          showToast("Friend code not found");
+          return;
+        }
+
+        const target = codeSnap.val();
+        const targetUid = target.uid;
+        if (!targetUid || targetUid === profile.uid) {
+          showToast("Invalid friend code");
+          return;
+        }
+
+        const userSnap = await get(ref(db, `users/${targetUid}`));
+        if (!userSnap.exists()) {
+          showToast("User profile missing");
+          return;
+        }
+
+        const friendProfile = userSnap.val();
+        const chatId = chatIdFor(profile.uid, targetUid);
+
+        await update(ref(db), {
+          [`friends/${profile.uid}/${targetUid}`]: {
+            uid: targetUid,
+            nickname: friendProfile.nickname || target.nickname,
+            avatar: friendProfile.avatar || target.avatar,
+            code: friendProfile.code || code,
+            addedAt: serverTimestamp()
+          },
+          [`friends/${targetUid}/${profile.uid}`]: {
+            uid: profile.uid,
+            nickname: profile.nickname,
+            avatar: profile.avatar,
+            code: profile.code,
+            addedAt: serverTimestamp()
+          },
+          [`conversations/${chatId}/members/${profile.uid}`]: true,
+          [`conversations/${chatId}/members/${targetUid}`]: true,
+          [`conversations/${chatId}/updatedAt`]: serverTimestamp()
+        });
+
+        $("friendCodeInput").value = "";
+        showToast("Friend added");
+        openPrivateChat(friendProfile);
+      } catch (error) {
+        showToast("Add error: " + error.message);
+      } finally {
+        $("addFriendBtn").disabled = false;
+        $("addFriendBtn").textContent = "ADD FRIEND";
+      }
+    }
+
+    function chatIdFor(a, b) {
+      return [a, b].sort().join("_");
+    }
+
+    function openLobby() {
+      currentChat = {
+        type: "lobby",
+        title: "NOKI LOBBY",
+        avatar: "📡",
+        path: "rooms/lobby/messages"
+      };
+      openChat();
+    }
+
+    function openPrivateChat(friend) {
+      if (!profile || !friend.uid) return;
+      const chatId = chatIdFor(profile.uid, friend.uid);
+      currentChat = {
+        type: "private",
+        title: friend.nickname || "Friend",
+        avatar: friend.avatar || "💬",
+        path: `conversations/${chatId}/messages`,
+        chatId
+      };
+      openChat();
+    }
+
+    function openChat() {
+      if (!currentChat) return;
+
+      if (messageUnsubscribe) {
+        messageUnsubscribe();
+        messageUnsubscribe = null;
+      }
+
+      $("chatHeaderAvatar").textContent = currentChat.avatar;
+      $("chatTitle").textContent = currentChat.title;
+      $("messages").innerHTML = "";
+      showView("chatView");
+
+      const recentMessages = query(ref(db, currentChat.path), limitToLast(80));
+      messageUnsubscribe = onChildAdded(recentMessages, snap => {
+        renderMessage(snap.val());
+      });
+
+      setTimeout(() => {
+        activeTextInput = $("messageInput");
+        $("messageInput").focus();
+      }, 150);
+    }
+
+    async function sendMessage() {
+      if (!currentChat || !profile) return;
+      const input = $("messageInput");
+      const text = input.value.trim();
+
+      if (!text) return;
+      input.value = "";
+      resetMultiTap();
+
+      try {
+        const message = {
+          from: profile.uid,
+          nickname: profile.nickname,
+          avatar: profile.avatar,
+          text,
+          createdAt: serverTimestamp()
+        };
+
+        await push(ref(db, currentChat.path), message);
+
+        if (currentChat.type === "private") {
+          await update(ref(db, `conversations/${currentChat.chatId}`), {
+            lastText: text.slice(0, 80),
+            lastFrom: profile.uid,
+            updatedAt: serverTimestamp()
+          });
+        }
+      } catch (error) {
+        showToast("Send error: " + error.message);
+        input.value = text;
+      }
+    }
+
+    function renderMessage(msg) {
+      if (!msg) return;
+      const line = document.createElement("div");
+      line.className = "smsLine" + (msg.from === profile?.uid ? " mine" : "");
+
+      const time = typeof msg.createdAt === "number"
+        ? new Date(msg.createdAt).toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" })
+        : "sending";
+
+      line.innerHTML = `
+        <div class="smsMeta">${escapeHTML(msg.avatar || "💬")} ${escapeHTML(msg.nickname || "Guest")} · ${time}</div>
+        <div class="smsText"></div>
+      `;
+      line.querySelector(".smsText").textContent = msg.text || "";
+      $("messages").appendChild(line);
+      $("messages").scrollTop = $("messages").scrollHeight;
+    }
+
+    async function saveStatus() {
+      if (!profile || !currentUser) return;
+      const status = safeText($("statusInput").value, "No status").slice(0, 90);
+      profile.status = status;
+      localStorage.setItem("nokiProfile", JSON.stringify(profile));
+      await update(ref(db, `users/${currentUser.uid}`), { status });
+      renderProfile();
+      showToast("Status saved");
+    }
+
+    async function copyCode() {
+      if (!profile?.code) return;
+      try {
+        await navigator.clipboard.writeText(profile.code);
+        showToast("Code copied");
+      } catch {
+        prompt("Copy your code:", profile.code);
+      }
+    }
+
+    function resetPhone() {
+      const ok = confirm("Reset this phone on this browser? Your Firebase user stays, but local setup will reload.");
+      if (!ok) return;
+      localStorage.removeItem("nokiProfile");
+      location.reload();
+    }
+
+    function focusActiveInput() {
+      const el = document.activeElement;
+      if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA")) {
+        activeTextInput = el;
+      }
+      return activeTextInput;
+    }
+
+    function getInputForKeypad() {
+      focusActiveInput();
+
+      if (activeTextInput && document.body.contains(activeTextInput)) {
+        return activeTextInput;
+      }
+
+      if (activeView === "setupView") return $("setupName");
+      if (activeView === "friendsView") return $("friendCodeInput");
+      if (activeView === "profileView") return $("statusInput");
+      if (activeView === "chatView") return $("messageInput");
+      return null;
+    }
+
+    function insertText(value) {
+      const input = getInputForKeypad();
+      if (!input) return;
+
+      const start = input.selectionStart ?? input.value.length;
+      const end = input.selectionEnd ?? input.value.length;
+      input.value = input.value.slice(0, start) + value + input.value.slice(end);
+      input.focus();
+      input.selectionStart = input.selectionEnd = start + value.length;
+      activeTextInput = input;
+    }
+
+    function replacePrevious(value) {
+      const input = getInputForKeypad();
+      if (!input) return;
+
+      const pos = input.selectionStart ?? input.value.length;
+      if (pos <= 0) {
+        insertText(value);
+        return;
+      }
+
+      input.value = input.value.slice(0, pos - 1) + value + input.value.slice(pos);
+      input.focus();
+      input.selectionStart = input.selectionEnd = pos;
+      activeTextInput = input;
+    }
+
+    function deleteOne() {
+      const input = getInputForKeypad();
+      if (!input) return;
+
+      const start = input.selectionStart ?? input.value.length;
+      const end = input.selectionEnd ?? input.value.length;
+
+      if (start !== end) {
+        input.value = input.value.slice(0, start) + input.value.slice(end);
+        input.selectionStart = input.selectionEnd = start;
+      } else if (start > 0) {
+        input.value = input.value.slice(0, start - 1) + input.value.slice(start);
+        input.selectionStart = input.selectionEnd = start - 1;
+      }
+
+      input.focus();
+      activeTextInput = input;
+      resetMultiTap();
+    }
+
+    function multiTap(key, letters) {
+      const now = Date.now();
+      const sameKeyFast = key === lastKey && now - lastTapAt < multiTapDelay;
+      const chars = letters.split("");
+
+      if (sameKeyFast) {
+        tapIndex = (tapIndex + 1) % chars.length;
+        replacePrevious(chars[tapIndex]);
+      } else {
+        tapIndex = 0;
+        insertText(chars[tapIndex]);
+      }
+
+      lastKey = key;
+      lastTapAt = now;
+    }
+
+    function resetMultiTap() {
+      lastKey = null;
+      lastTapAt = 0;
+      tapIndex = 0;
+    }
+
+    function cycleTheme() {
+      const currentIndex = themes.findIndex(t => t.id === selectedTheme);
+      const next = themes[(currentIndex + 1) % themes.length];
+      applyTheme(next.id);
+
+      if (profile && currentUser) {
+        profile.theme = next.id;
+        localStorage.setItem("nokiProfile", JSON.stringify(profile));
+        update(ref(db, `users/${currentUser.uid}`), { theme: next.id }).catch(console.error);
+      }
+
+      showToast(next.label);
+    }
+
+    function primaryAction() {
+      if (activeView === "setupView") return finishSetup();
+      if (activeView === "chatView") return sendMessage();
+      if (activeView === "friendsView") return addFriend();
+      if (activeView === "profileView") return saveStatus();
+      if (activeView === "bootView") return;
+      showView("homeView");
+    }
+
+    document.addEventListener("focusin", (event) => {
+      if (event.target.matches("input, textarea")) {
+        activeTextInput = event.target;
+        resetMultiTap();
+      }
+    });
+
+    document.addEventListener("input", (event) => {
+      if (event.target.matches("input, textarea")) resetMultiTap();
+    });
+
+    document.addEventListener("click", (event) => {
+      const openButton = event.target.closest("[data-open]");
+      if (openButton) {
+        showView(openButton.dataset.open);
+      }
+    });
+
+    $("finishSetupBtn").addEventListener("click", finishSetup);
+    $("openLobbyBtn").addEventListener("click", openLobby);
+    $("addFriendBtn").addEventListener("click", addFriend);
+    $("copyCodeBtn").addEventListener("click", copyCode);
+    $("saveStatusBtn").addEventListener("click", saveStatus);
+    $("goHomeBtn").addEventListener("click", () => showView("homeView"));
+    $("resetLocalBtn").addEventListener("click", resetPhone);
+    $("chatBackBtn").addEventListener("click", () => showView("inboxView"));
+    $("messageForm").addEventListener("submit", (event) => {
+      event.preventDefault();
+      sendMessage();
+    });
+
+    $("menuBtn").addEventListener("click", () => {
+      if (profile) showView("homeView");
+    });
+    $("okBtn").addEventListener("click", primaryAction);
+    $("delBtn").addEventListener("click", deleteOne);
+
+    $("keypad").addEventListener("click", (event) => {
+      const button = event.target.closest("button");
+      if (!button) return;
+
+      const action = button.dataset.action;
+      if (action === "space") {
+        insertText(" ");
+        resetMultiTap();
+        return;
+      }
+      if (action === "send") {
+        primaryAction();
+        return;
+      }
+      if (action === "theme") {
+        cycleTheme();
+        return;
+      }
+
+      if (button.dataset.key && button.dataset.letters) {
+        multiTap(button.dataset.key, button.dataset.letters);
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && profile) showView("homeView");
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "enter") {
+        if (activeView === "chatView") sendMessage();
+      }
+    });
+
+    renderSetupChoices();
+    renderThemeSelections();
+    applyTheme(selectedTheme);
+    initFirebase();
+  </script>
+</body>
+</html>
