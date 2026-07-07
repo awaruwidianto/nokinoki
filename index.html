@@ -617,8 +617,8 @@
         <h1 class="title" data-i18n="setupTitle">ACCOUNT</h1>
         <p class="subtitle" data-i18n="setupSub">Choose a username & password.</p>
 
-        <!-- FIRST OPTION: LANGUAGE TOGGLE FOR LOGIN -->
-        <button class="screenBtn" id="loginLangBtn" type="button" style="margin-bottom: 12px; font-size: 12px; padding: 6px;">LANGUAGE: ENGLISH</button>
+        <!-- FIRST OPTION: FLAG LANGUAGE TOGGLE FOR LOGIN -->
+        <button class="screenBtn" id="loginLangBtn" type="button" style="margin-bottom: 12px; font-size: 14px; padding: 6px;">🇺🇸 ENGLISH</button>
 
         <div class="errorBox" id="setupError"></div>
 
@@ -730,7 +730,7 @@
         <h2 class="title" data-i18n="titleSettings">SETTINGS</h2>
         <div class="lcdPanel">
           <button class="screenBtn primary" id="toggleSoundBtn" type="button">Sound: ON</button>
-          <button class="screenBtn primary" id="toggleLangBtn" type="button">Language: English</button>
+          <button class="screenBtn primary" id="toggleLangBtn" type="button">🇺🇸 ENGLISH</button>
         </div>
         <button class="screenBtn primary" id="adminBtn" type="button" data-i18n="adminBtn" style="margin-bottom:10px;">DEVELOPER</button>
         <button class="screenBtn" id="goHomeBtn" type="button" data-i18n="homeBtn">HOME</button>
@@ -1355,7 +1355,7 @@
     }
 
     function updateSettingsLabels() {
-      const langNames = { en: "LANGUAGE: ENGLISH", ko: "언어: 한국어", id: "BAHASA: INDONESIA" };
+      const langNames = { en: "🇺🇸 ENGLISH", ko: "🇰🇷 한국어", id: "🇮🇩 INDONESIA" };
       const soundLabels = { en: "SOUND: ", ko: "소리: ", id: "SUARA: " };
       
       $("toggleSoundBtn").textContent = soundLabels[currentLang] + (soundEnabled ? "ON" : "OFF");
