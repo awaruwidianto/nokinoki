@@ -659,7 +659,6 @@
         </div>
       </div>
 
-      <!-- NEW GAME VIEW -->
       <div id="gameView" class="view">
         <h2 class="title" data-i18n="menuGame">NOKI RUN</h2>
         <div class="gameZone" id="gameArea">
@@ -729,6 +728,7 @@
         </div>
         <button class="screenBtn" id="goHomeBtn" type="button" data-i18n="homeBtn">HOME</button>
         <button class="screenBtn danger" id="logoutBtn" type="button" data-i18n="logoutBtn">LOGOUT</button>
+        <button class="screenBtn danger" id="deleteAccountBtn" type="button" data-i18n="deleteAccountBtn" style="margin-top:6px;">DELETE ACCOUNT</button>
       </div>
 
       <div id="chatView" class="view chatView">
@@ -780,8 +780,8 @@
         addCodeLabel: "Add friend code", addFriendAction: "ADD FRIEND", friendListLabel: "FRIEND LIST",
         titleProfile: "PROFILE", editNameLabel: "Edit Name", editAvatarLabel: "Edit Avatar", saveIdentityBtn: "SAVE IDENTITY",
         titleThemes: "THEMES", themeSub: "Change your phone shell.",
-        titleSettings: "SETTINGS", homeBtn: "HOME", logoutBtn: "LOGOUT",
-        sendBtn: "OK", confirmRemove: "Delete friend & chat?",
+        titleSettings: "SETTINGS", homeBtn: "HOME", logoutBtn: "LOGOUT", deleteAccountBtn: "DELETE ACCOUNT",
+        sendBtn: "OK", confirmRemove: "Delete friend & chat?", confirmDelete: "Are you sure? This will delete EVERYTHING.",
         gameStart: "TAP TO START", gameOver: "GAME OVER. TAP TO RETRY", gamePause: "PAUSED. TAP TO RESUME", jumpBtn: "JUMP (TAP)"
       },
       ko: {
@@ -794,8 +794,8 @@
         addCodeLabel: "친구 코드 추가", addFriendAction: "친구 추가", friendListLabel: "친구 목록",
         titleProfile: "프로필", editNameLabel: "이름 수정", editAvatarLabel: "아바타 수정", saveIdentityBtn: "저장하기",
         titleThemes: "테마", themeSub: "폰 스킨을 변경하세요.",
-        titleSettings: "설정", homeBtn: "홈", logoutBtn: "로그아웃",
-        sendBtn: "전송", confirmRemove: "친구와 채팅을 삭제할까요?",
+        titleSettings: "설정", homeBtn: "홈", logoutBtn: "로그아웃", deleteAccountBtn: "계정 삭제",
+        sendBtn: "전송", confirmRemove: "친구와 채팅을 삭제할까요?", confirmDelete: "정말 삭제하시겠습니까? 모든 데이터가 삭제됩니다.",
         gameStart: "시작하려면 탭하세요", gameOver: "게임 오버. 다시 탭하세요", gamePause: "일시정지. 계속하려면 탭하세요", jumpBtn: "점프 (탭)"
       }
     };
@@ -928,7 +928,7 @@
       // Collision Check
       let gameWidth = $("gameArea").offsetWidth;
       let cPx = (cactusX / 100) * gameWidth;
-      // Dino is ~20px left, ~26px wide. Cactus ~26px wide.
+      
       if (cPx > 5 && cPx < 45 && dinoY < 32) {
          // HIT
          gActive = false;
@@ -942,7 +942,6 @@
       if(e) e.preventDefault();
       
       if (!gActive) {
-        // Reset and Start
         gScore = 0;
         cactusX = 100;
         dinoY = 10;
@@ -954,9 +953,8 @@
         if (!gLoop) gLoop = setInterval(gameTick, 30);
       }
       
-      // Jump only if grounded
       if (dinoY <= 12) { 
-        dinoVy = 15; // Jump strength
+        dinoVy = 15; 
         soundJump();
       }
     }
@@ -1055,6 +1053,8 @@
     }
     updateClock();
     setInterval(updateClock, 30000);
+
+    function chatIdFor(a, b) { return [a, b].sort().join("_"); }
 
     // --- NO PASSWORD AUTH FLOW ---
     async function generateCode() {
@@ -1157,6 +1157,35 @@
       localStorage.removeItem("nokiUid");
       location.reload();
     });
+
+    // --- ACCOUNT DELETION ---
+    async function deleteAccount() {
+      if (!profile || !currentUser) return;
+      if (!confirm(t("confirmDelete"))) return;
+
+      try {
+        let updates = {};
+        updates[`users/${profile.uid}`] = null;
+        if (profile.code) updates[`publicCodes/${profile.code}`] = null;
+        
+        const friendsList = Object.values(friends || {});
+        for (const f of friendsList) {
+          updates[`friends/${f.uid}/${profile.uid}`] = null;
+          updates[`friends/${profile.uid}/${f.uid}`] = null;
+          const chatId = chatIdFor(profile.uid, f.uid);
+          updates[`conversations/${chatId}`] = null;
+        }
+        
+        await update(ref(db), updates);
+        
+        localStorage.removeItem("nokiUid");
+        localStorage.removeItem("nokiProfile");
+        location.reload();
+      } catch(e) {
+        showToast("Error: " + e.message);
+      }
+    }
+    $("deleteAccountBtn").addEventListener("click", deleteAccount);
 
     // --- UI RENDERING ---
     function renderSetupChoices() {
@@ -1319,8 +1348,6 @@
       return card;
     }
 
-    function chatIdFor(a, b) { return [a, b].sort().join("_"); }
-
     async function removeFriend(friend) {
       if (!profile || !friend.uid) return;
       if (!confirm(t("confirmRemove"))) return;
@@ -1482,6 +1509,7 @@
       }
     }
 
+    // --- FULL ACCOUNT MIGRATION ---
     async function saveIdentity() {
       if (!profile || !currentUser) return;
       const newName = safeText($("editNameInput").value, profile.nickname).slice(0, 24);
@@ -1490,25 +1518,101 @@
         return showToast("NAME TOO SHORT!");
       }
 
-      profile.nickname = newName;
-      profile.avatar = editProfileAvatar;
+      $("saveIdentityBtn").disabled = true;
+      const newUid = newName.toLowerCase().replace(/[^a-z0-9]/g, "");
       
-      localStorage.setItem("nokiProfile", JSON.stringify(profile));
-      
-      const updates = {
-        [`users/${currentUser.uid}/nickname`]: newName,
-        [`users/${currentUser.uid}/avatar`]: editProfileAvatar
-      };
+      try {
+        if (newUid !== profile.uid) {
+          // Check if taken
+          const checkSnap = await get(ref(db, `users/${newUid}`));
+          if (checkSnap.exists()) {
+             $("saveIdentityBtn").disabled = false;
+             return showToast("NAME TAKEN!");
+          }
 
-      if (profile.code) {
-        updates[`publicCodes/${profile.code}/nickname`] = newName;
-        updates[`publicCodes/${profile.code}/avatar`] = editProfileAvatar;
+          $("saveIdentityBtn").textContent = "MIGRATING..."; 
+
+          let updates = {};
+          let newProfile = { ...profile, uid: newUid, nickname: newName, avatar: editProfileAvatar };
+          
+          updates[`users/${newUid}`] = newProfile;
+          updates[`users/${profile.uid}`] = null;
+          
+          if (profile.code) {
+            updates[`publicCodes/${profile.code}/uid`] = newUid;
+            updates[`publicCodes/${profile.code}/nickname`] = newName;
+            updates[`publicCodes/${profile.code}/avatar`] = editProfileAvatar;
+          }
+
+          const friendsList = Object.values(friends || {});
+          for (const f of friendsList) {
+            const myOldRefSnap = await get(ref(db, `friends/${f.uid}/${profile.uid}`));
+            if (myOldRefSnap.exists()) {
+               let myOldData = myOldRefSnap.val();
+               myOldData.uid = newUid;
+               myOldData.nickname = newName;
+               myOldData.avatar = editProfileAvatar;
+               updates[`friends/${f.uid}/${newUid}`] = myOldData;
+               updates[`friends/${f.uid}/${profile.uid}`] = null;
+            }
+            
+            updates[`friends/${newUid}/${f.uid}`] = friends[f.uid];
+            updates[`friends/${profile.uid}/${f.uid}`] = null;
+            
+            const oldChatId = chatIdFor(profile.uid, f.uid);
+            const newChatId = chatIdFor(newUid, f.uid);
+            if (oldChatId !== newChatId) {
+               const chatSnap = await get(ref(db, `conversations/${oldChatId}`));
+               if (chatSnap.exists()) {
+                 updates[`conversations/${newChatId}`] = chatSnap.val();
+                 updates[`conversations/${oldChatId}`] = null;
+               }
+            }
+          }
+
+          await update(ref(db), updates);
+
+          profile = newProfile;
+          currentUser.uid = newUid;
+          localStorage.setItem("nokiUid", newUid);
+          localStorage.setItem("nokiProfile", JSON.stringify(profile));
+          
+          if (friendUnsubscribe) friendUnsubscribe();
+          watchFriends();
+
+        } else {
+          profile.nickname = newName;
+          profile.avatar = editProfileAvatar;
+          localStorage.setItem("nokiProfile", JSON.stringify(profile));
+          
+          const updates = {
+            [`users/${currentUser.uid}/nickname`]: newName,
+            [`users/${currentUser.uid}/avatar`]: editProfileAvatar
+          };
+
+          if (profile.code) {
+            updates[`publicCodes/${profile.code}/nickname`] = newName;
+            updates[`publicCodes/${profile.code}/avatar`] = editProfileAvatar;
+          }
+
+          const friendsList = Object.values(friends || {});
+          for (const f of friendsList) {
+             updates[`friends/${f.uid}/${currentUser.uid}/nickname`] = newName;
+             updates[`friends/${f.uid}/${currentUser.uid}/avatar`] = editProfileAvatar;
+          }
+
+          await update(ref(db), updates);
+        }
+        
+        renderProfile();
+        $("saveIdentityBtn").innerText = t("saveIdentityBtn");
+        showToast(currentLang === 'ko' ? "저장 완료" : "IDENTITY SAVED");
+      } catch (e) {
+        showToast("ERROR: " + e.message);
+        $("saveIdentityBtn").innerText = t("saveIdentityBtn");
+      } finally {
+        $("saveIdentityBtn").disabled = false;
       }
-
-      await update(ref(db), updates);
-      
-      renderProfile();
-      showToast(currentLang === 'ko' ? "저장 완료" : "IDENTITY SAVED");
     }
 
     async function copyCode() {
