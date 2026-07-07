@@ -592,6 +592,14 @@
       padding: 10px;
     }
 
+    .lang-btn.active-lang {
+      opacity: 1;
+      border-color: var(--accent);
+      background: rgba(255,255,255,.9);
+    }
+    .lang-btn {
+      opacity: 0.6;
+    }
   </style>
 </head>
 <body class="theme-pink">
@@ -617,8 +625,12 @@
         <h1 class="title" data-i18n="setupTitle">ACCOUNT</h1>
         <p class="subtitle" data-i18n="setupSub">Choose a username & password.</p>
 
-        <!-- FIRST OPTION: FLAG LANGUAGE TOGGLE FOR LOGIN -->
-        <button class="screenBtn" id="loginLangBtn" type="button" style="margin-bottom: 12px; font-size: 14px; padding: 6px;">🇺🇸 ENGLISH</button>
+        <!-- HORIZONTAL LANGUAGE TOGGLE FOR LOGIN -->
+        <div class="row" style="margin-bottom: 12px;">
+          <button class="screenBtn lang-btn" data-lang="en" type="button" style="padding:6px; font-size:14px;">🇺🇸 EN</button>
+          <button class="screenBtn lang-btn" data-lang="ko" type="button" style="padding:6px; font-size:14px;">🇰🇷 KO</button>
+          <button class="screenBtn lang-btn" data-lang="id" type="button" style="padding:6px; font-size:14px;">🇮🇩 ID</button>
+        </div>
 
         <div class="errorBox" id="setupError"></div>
 
@@ -729,8 +741,15 @@
       <div id="settingsView" class="view">
         <h2 class="title" data-i18n="titleSettings">SETTINGS</h2>
         <div class="lcdPanel">
-          <button class="screenBtn primary" id="toggleSoundBtn" type="button">Sound: ON</button>
-          <button class="screenBtn primary" id="toggleLangBtn" type="button">🇺🇸 ENGLISH</button>
+          <button class="screenBtn primary" id="toggleSoundBtn" type="button" style="margin-bottom: 6px;">Sound: ON</button>
+          
+          <!-- HORIZONTAL LANGUAGE TOGGLE FOR SETTINGS -->
+          <div class="row">
+            <button class="screenBtn primary lang-btn" data-lang="en" type="button" style="padding:6px; font-size:14px; margin-bottom: 0;">🇺🇸 EN</button>
+            <button class="screenBtn primary lang-btn" data-lang="ko" type="button" style="padding:6px; font-size:14px; margin-bottom: 0;">🇰🇷 KO</button>
+            <button class="screenBtn primary lang-btn" data-lang="id" type="button" style="padding:6px; font-size:14px; margin-bottom: 0;">🇮🇩 ID</button>
+          </div>
+
         </div>
         <button class="screenBtn primary" id="adminBtn" type="button" data-i18n="adminBtn" style="margin-bottom:10px;">DEVELOPER</button>
         <button class="screenBtn" id="goHomeBtn" type="button" data-i18n="homeBtn">HOME</button>
@@ -924,7 +943,7 @@
     });
 
     document.addEventListener("click", (e) => {
-      if (e.target.closest("#toggleSoundBtn") || e.target.closest("#gameArea") || e.target.closest("#jumpBtn") || e.target.closest("#toggleLangBtn") || e.target.closest("#loginLangBtn")) return; 
+      if (e.target.closest("#toggleSoundBtn") || e.target.closest("#gameArea") || e.target.closest("#jumpBtn") || e.target.closest(".lang-btn")) return; 
       if (e.target.closest("button, .friendCard, .themeChoice, .avatarChoice, .removeBtn")) {
         soundClick();
       }
@@ -1355,12 +1374,16 @@
     }
 
     function updateSettingsLabels() {
-      const langNames = { en: "🇺🇸 ENGLISH", ko: "🇰🇷 한국어", id: "🇮🇩 INDONESIA" };
       const soundLabels = { en: "SOUND: ", ko: "소리: ", id: "SUARA: " };
-      
       $("toggleSoundBtn").textContent = soundLabels[currentLang] + (soundEnabled ? "ON" : "OFF");
-      $("toggleLangBtn").textContent = langNames[currentLang] || langNames.en;
-      if ($("loginLangBtn")) $("loginLangBtn").textContent = langNames[currentLang] || langNames.en;
+      
+      document.querySelectorAll(".lang-btn").forEach(btn => {
+        if (btn.dataset.lang === currentLang) {
+          btn.classList.add("active-lang");
+        } else {
+          btn.classList.remove("active-lang");
+        }
+      });
     }
 
     $("toggleSoundBtn").addEventListener("click", () => {
@@ -1370,33 +1393,18 @@
       if(soundEnabled) playBeep(800, 'sine', 0.1);
     });
 
-    const handleLangToggle = () => {
-      soundClick(); 
-      const langs = ['en', 'ko', 'id'];
-      let idx = langs.indexOf(currentLang);
-      currentLang = langs[(idx + 1) % langs.length];
-      localStorage.setItem("nokiLang", currentLang);
-      applyLang();
-    };
-
-    $("toggleLangBtn").addEventListener("click", handleLangToggle);
-    $("loginLangBtn").addEventListener("click", handleLangToggle);
+    document.querySelectorAll(".lang-btn").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        soundClick();
+        currentLang = e.currentTarget.dataset.lang;
+        localStorage.setItem("nokiLang", currentLang);
+        applyLang();
+      });
+    });
 
     function renderHome() {
       if (!profile) return;
       $("homeHello").textContent = `${profile.avatar} ${profile.nickname}`;
-    }
-
-    function renderProfile() {
-      if (!profile) return;
-      $("profileAvatar").textContent = profile.avatar;
-      $("profileName").textContent = profile.nickname;
-      $("profileCode").textContent = profile.code;
-      $("myCodeBox").textContent = profile.code;
-      
-      $("editNameInput").value = profile.nickname || "";
-      editProfileAvatar = profile.avatar || avatars[0];
-      renderEditAvatars();
     }
 
     function renderInbox() {
@@ -1415,7 +1423,11 @@
         return;
       }
       values.sort((a,b) => (b.addedAt || 0) - (a.addedAt || 0))
-            .forEach(friend => inbox.appendChild(friendButton(friend, true)));
+            .forEach(friend => {
+               if (friend && friend.uid) { // Fix applied here to hide missing/ghost users
+                   inbox.appendChild(friendButton(friend, true));
+               }
+            });
     }
 
     function renderFriends() {
@@ -1435,7 +1447,11 @@
         return;
       }
       values.sort((a,b) => (a.nickname || "").localeCompare(b.nickname || ""))
-            .forEach(friend => list.appendChild(friendButton(friend, false)));
+            .forEach(friend => {
+               if (friend && friend.uid) { // Fix applied here as well
+                   list.appendChild(friendButton(friend, false));
+               }
+            });
     }
 
     function friendButton(friend, isInbox) {
