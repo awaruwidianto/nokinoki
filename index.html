@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <!-- Prevents zooming on iPhone -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>NOKI NOKI</title>
   <style>
     :root{
@@ -610,6 +610,402 @@
     .lang-btn {
       opacity: 0.6;
     }
+
+
+    /* ==========================================================
+       NOKI NOKI RETRO POLISH
+       CSS-only Nokia/LCD redesign + Instagram in-app browser fit.
+       Firebase + app JavaScript below is intentionally untouched.
+       ========================================================== */
+    :root{
+      --lcdLine:rgba(32,58,38,.36);
+      --lcdDark:rgba(32,58,38,.78);
+      --phoneShadow:rgba(44,34,46,.22);
+    }
+
+    html,
+    body{
+      min-height:100vh;
+      min-height:100svh;
+      min-height:100dvh;
+      overflow:hidden;
+    }
+
+    body{
+      padding:
+        max(10px, env(safe-area-inset-top, 0px))
+        max(10px, env(safe-area-inset-right, 0px))
+        max(14px, env(safe-area-inset-bottom, 0px))
+        max(10px, env(safe-area-inset-left, 0px));
+      -webkit-text-size-adjust:100%;
+      background:
+        radial-gradient(circle at 12% 16%, rgba(255,255,255,.68) 0 9%, transparent 10%),
+        radial-gradient(circle at 85% 12%, var(--body2) 0 11%, transparent 12%),
+        radial-gradient(circle at 82% 86%, rgba(255,255,255,.58) 0 8%, transparent 9%),
+        linear-gradient(135deg,var(--wall2),#fffdf8 56%,var(--wall1));
+    }
+
+    .phone{
+      width:min(366px, calc(100vw - 20px));
+      height:min(640px, calc(100vh - 24px));
+      height:min(640px, calc(100dvh - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
+      max-height:640px;
+      min-height:500px;
+      position:relative;
+      border-radius:34px 34px 48px 48px;
+      border-width:5px;
+      padding:15px 14px 16px;
+      gap:8px;
+      background:
+        radial-gradient(circle at 50% 3%, rgba(255,255,255,.7) 0 8%, transparent 9%),
+        linear-gradient(150deg,var(--body),var(--body2) 62%,var(--body3));
+      box-shadow:
+        inset 0 0 0 4px rgba(255,255,255,.38),
+        inset 0 -18px 26px rgba(0,0,0,.075),
+        10px 12px 0 var(--phoneShadow);
+    }
+
+    .phone::after{
+      content:"";
+      flex:0 0 clamp(54px, 12dvh, 82px);
+      display:block;
+      width:100%;
+      pointer-events:none;
+      border:4px solid var(--body3);
+      border-radius:14px 14px 30px 30px;
+      background:
+        radial-gradient(ellipse 30px 12px at 50% 16%, var(--button) 0 68%, transparent 70%),
+        radial-gradient(ellipse 28px 10px at 25% 34%, var(--button) 0 68%, transparent 70%),
+        radial-gradient(ellipse 28px 10px at 50% 34%, var(--button) 0 68%, transparent 70%),
+        radial-gradient(ellipse 28px 10px at 75% 34%, var(--button) 0 68%, transparent 70%),
+        radial-gradient(ellipse 28px 10px at 25% 56%, var(--button2) 0 68%, transparent 70%),
+        radial-gradient(ellipse 28px 10px at 50% 56%, var(--button2) 0 68%, transparent 70%),
+        radial-gradient(ellipse 28px 10px at 75% 56%, var(--button2) 0 68%, transparent 70%),
+        radial-gradient(ellipse 28px 10px at 25% 78%, var(--button2) 0 68%, transparent 70%),
+        radial-gradient(ellipse 28px 10px at 50% 78%, var(--button2) 0 68%, transparent 70%),
+        radial-gradient(ellipse 28px 10px at 75% 78%, var(--button2) 0 68%, transparent 70%),
+        linear-gradient(180deg,rgba(255,255,255,.24),rgba(0,0,0,.05));
+      box-shadow:
+        inset 3px 3px 0 rgba(255,255,255,.36),
+        inset -4px -4px 0 rgba(0,0,0,.08);
+    }
+
+    .brand{
+      font-size:16px;
+      letter-spacing:4px;
+      opacity:.84;
+      line-height:1;
+      text-shadow:
+        2px 2px 0 rgba(255,255,255,.82),
+        -1px -1px 0 rgba(0,0,0,.05);
+    }
+
+    .speaker{
+      width:86px;
+      height:12px;
+      border-radius:999px;
+      border:3px solid var(--body3);
+      background:
+        repeating-linear-gradient(90deg, rgba(0,0,0,.35) 0 4px, transparent 4px 8px),
+        rgba(0,0,0,.13);
+      box-shadow:
+        inset 2px 2px 0 rgba(0,0,0,.13),
+        1px 1px 0 rgba(255,255,255,.45);
+    }
+
+    .screen{
+      border-radius:13px 13px 8px 8px;
+      border-width:5px;
+      background:
+        repeating-linear-gradient(0deg, rgba(32,58,38,.08) 0 1px, transparent 1px 4px),
+        radial-gradient(circle at 50% 0%, rgba(255,255,255,.36), transparent 47%),
+        linear-gradient(180deg,var(--screen),var(--screen2));
+      box-shadow:
+        inset 5px 5px 0 rgba(0,0,0,.13),
+        inset -2px -2px 0 rgba(255,255,255,.28),
+        0 0 0 2px rgba(255,255,255,.24);
+    }
+
+    .screen::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      background:
+        radial-gradient(circle at 50% 36%, transparent 0 58%, rgba(0,0,0,.045) 100%),
+        linear-gradient(90deg, rgba(255,255,255,.12), transparent 18%, transparent 82%, rgba(0,0,0,.06));
+      mix-blend-mode:multiply;
+    }
+
+    .screen,
+    .screen button,
+    .screen input,
+    .screen textarea{
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", "Apple SD Gothic Neo", "Noto Sans KR", monospace;
+      letter-spacing:.02em;
+    }
+
+    .statusbar{
+      height:30px;
+      border-bottom:3px solid var(--screenBorder);
+      background:rgba(255,255,255,.18);
+      font-size:10px;
+    }
+
+    .view,
+    .messages,
+    #adminUserList{
+      -webkit-overflow-scrolling:touch;
+      overscroll-behavior:contain;
+      scrollbar-width:thin;
+    }
+
+    .view{
+      padding:9px;
+    }
+
+    .title{
+      font-size:16px;
+      letter-spacing:1.6px;
+      text-shadow:1px 1px 0 rgba(255,255,255,.4);
+    }
+
+    .subtitle,
+    .tiny,
+    label,
+    .friendSub,
+    .smsMeta{
+      letter-spacing:.06em;
+    }
+
+    .lcdPanel{
+      border-color:var(--lcdDark);
+      background:rgba(255,255,255,.34);
+      border-radius:5px;
+      box-shadow:4px 4px 0 rgba(0,0,0,.14);
+    }
+
+    input,
+    textarea{
+      border-color:var(--lcdDark);
+      background:rgba(255,255,255,.48);
+      border-radius:5px;
+      box-shadow:inset 3px 3px 0 rgba(0,0,0,.095);
+    }
+
+    .screenBtn,
+    .menuItem,
+    .themeChoice,
+    .avatarChoice,
+    .friendCard{
+      border-radius:7px;
+      box-shadow:
+        inset 1px 1px 0 rgba(255,255,255,.62),
+        4px 4px 0 rgba(0,0,0,.18);
+    }
+
+    .screenBtn.primary{
+      box-shadow:
+        inset 1px 1px 0 rgba(255,255,255,.1),
+        4px 4px 0 rgba(0,0,0,.22);
+    }
+
+    .menuList{
+      gap:7px;
+    }
+
+    .menuItem{
+      min-height:43px;
+      padding:8px 9px;
+      background:linear-gradient(180deg, rgba(255,255,255,.58), rgba(255,255,255,.32));
+    }
+
+    .menuIcon{
+      font-size:16px;
+      filter:grayscale(.25) contrast(.95);
+    }
+
+    .menuArrow{
+      font-size:19px;
+      line-height:1;
+    }
+
+    .homeClock{
+      font-size:clamp(30px, 11vw, 42px);
+      letter-spacing:3px;
+      margin-top:3px;
+      text-shadow:
+        2px 2px 0 rgba(255,255,255,.35),
+        4px 4px 0 rgba(0,0,0,.08);
+    }
+
+    .homeHello{
+      font-size:12px;
+      opacity:.92;
+    }
+
+    .avatarChoice{
+      min-height:38px;
+      background:rgba(255,255,255,.38);
+    }
+
+    .themeChoice{
+      background:rgba(255,255,255,.38);
+    }
+
+    .codeBox{
+      border-color:var(--lcdDark);
+      background:rgba(255,255,255,.28);
+      border-radius:4px;
+    }
+
+    .friendCard{
+      background:linear-gradient(180deg, rgba(255,255,255,.48), rgba(255,255,255,.3));
+    }
+
+    .friendAvatar{
+      border-color:var(--lcdDark);
+      border-radius:4px;
+      background:rgba(255,255,255,.32);
+    }
+
+    .chatHeader{
+      padding:7px 9px;
+      border-bottom-color:var(--screenBorder);
+      background:rgba(255,255,255,.18);
+    }
+
+    .chatBack{
+      border-color:var(--lcdDark);
+      border-radius:5px;
+      background:rgba(255,255,255,.42);
+    }
+
+    .messages{
+      padding:8px;
+      gap:1px;
+    }
+
+    .smsLine{
+      max-width:92%;
+      padding:7px 9px;
+      border:2px solid var(--lcdDark);
+      border-radius:4px;
+      background:rgba(255,255,255,.34);
+      box-shadow:3px 3px 0 rgba(0,0,0,.13);
+    }
+
+    .smsLine.mine{
+      border-radius:4px;
+      background:rgba(255,255,255,.68);
+    }
+
+    .smsMeta{
+      font-size:9px;
+      border-bottom:1px dashed var(--lcdLine);
+      padding-bottom:3px;
+      margin-bottom:5px;
+    }
+
+    .smsText{
+      font-size:12px;
+      line-height:1.45;
+    }
+
+    .composer{
+      gap:5px;
+      padding:6px;
+      padding-bottom:max(6px, env(safe-area-inset-bottom, 0px));
+      border-top-color:var(--screenBorder);
+      background:rgba(255,255,255,.16);
+    }
+
+    .composer input{
+      min-height:38px;
+      border-radius:5px;
+    }
+
+    .composer .sendBtn{
+      flex-basis:48px;
+    }
+
+    .toast{
+      border-color:var(--lcdDark);
+      border-radius:6px;
+      box-shadow:6px 6px 0 rgba(0,0,0,.24);
+    }
+
+    .errorBox{
+      border-radius:5px;
+    }
+
+    .gameZone{
+      border-color:var(--lcdDark);
+      background:
+        repeating-linear-gradient(0deg, rgba(32,58,38,.08) 0 1px, transparent 1px 4px),
+        var(--screen2);
+    }
+
+    .lang-btn.active-lang{
+      outline:2px solid var(--ink);
+      outline-offset:-5px;
+    }
+
+    @media (max-height:700px){
+      .phone{
+        height:calc(100dvh - 14px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+        min-height:0;
+        padding:12px;
+        gap:6px;
+      }
+
+      .phone::after{
+        flex-basis:48px;
+        border-width:3px;
+        border-radius:12px 12px 24px 24px;
+      }
+
+      .brand{
+        font-size:14px;
+        letter-spacing:3px;
+      }
+
+      .speaker{
+        height:9px;
+      }
+
+      .statusbar{
+        height:26px;
+      }
+
+      .view{
+        padding:8px;
+      }
+
+      .menuList{
+        gap:6px;
+      }
+
+      .menuItem{
+        min-height:38px;
+        padding:7px;
+      }
+
+      .homeClock{
+        font-size:30px;
+      }
+    }
+
+    @media (max-height:560px){
+      .phone::after{
+        display:none;
+      }
+
+      .phone{
+        border-radius:26px;
+      }
+    }
+
   </style>
 </head>
 <body class="theme-pink">
