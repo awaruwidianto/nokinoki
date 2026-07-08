@@ -666,28 +666,81 @@
     }
 
     .phone::after{
-      content:"";
-      flex:0 0 clamp(54px, 12dvh, 82px);
-      display:block;
+      display:none!important;
+      content:none!important;
+      flex-basis:0!important;
+    }
+
+    .hardwareHomeBtn{
+      flex:0 0 clamp(58px, 10dvh, 76px);
       width:100%;
-      pointer-events:none;
       border:4px solid var(--body3);
-      border-radius:14px 14px 30px 30px;
+      border-radius:16px 16px 31px 31px;
       background:
-        radial-gradient(ellipse 30px 12px at 50% 16%, var(--button) 0 68%, transparent 70%),
-        radial-gradient(ellipse 28px 10px at 25% 34%, var(--button) 0 68%, transparent 70%),
-        radial-gradient(ellipse 28px 10px at 50% 34%, var(--button) 0 68%, transparent 70%),
-        radial-gradient(ellipse 28px 10px at 75% 34%, var(--button) 0 68%, transparent 70%),
-        radial-gradient(ellipse 28px 10px at 25% 56%, var(--button2) 0 68%, transparent 70%),
-        radial-gradient(ellipse 28px 10px at 50% 56%, var(--button2) 0 68%, transparent 70%),
-        radial-gradient(ellipse 28px 10px at 75% 56%, var(--button2) 0 68%, transparent 70%),
-        radial-gradient(ellipse 28px 10px at 25% 78%, var(--button2) 0 68%, transparent 70%),
-        radial-gradient(ellipse 28px 10px at 50% 78%, var(--button2) 0 68%, transparent 70%),
-        radial-gradient(ellipse 28px 10px at 75% 78%, var(--button2) 0 68%, transparent 70%),
-        linear-gradient(180deg,rgba(255,255,255,.24),rgba(0,0,0,.05));
+        radial-gradient(circle at 50% 7%, rgba(255,255,255,.48) 0 15%, transparent 16%),
+        linear-gradient(180deg, rgba(255,255,255,.28), rgba(0,0,0,.055)),
+        linear-gradient(150deg, var(--body2), var(--body));
       box-shadow:
         inset 3px 3px 0 rgba(255,255,255,.36),
-        inset -4px -4px 0 rgba(0,0,0,.08);
+        inset -4px -4px 0 rgba(0,0,0,.08),
+        0 2px 0 rgba(255,255,255,.28);
+      display:grid;
+      place-items:center;
+      padding:8px;
+      cursor:pointer;
+      color:var(--ink);
+      -webkit-tap-highlight-color:transparent;
+      user-select:none;
+      touch-action:manipulation;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      text-transform:uppercase;
+    }
+
+    .hardwareHomeBtnInner{
+      min-width:132px;
+      height:42px;
+      border:3px solid var(--buttonBorder);
+      border-radius:999px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.78), rgba(255,255,255,.36)),
+        var(--button);
+      box-shadow:
+        inset 2px 2px 0 rgba(255,255,255,.74),
+        4px 4px 0 rgba(0,0,0,.18);
+    }
+
+    .hardwareHomeBtnIcon{
+      width:25px;
+      height:25px;
+      border:2px solid var(--buttonBorder);
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      line-height:1;
+      font-size:14px;
+      background:rgba(255,255,255,.48);
+      box-shadow:inset 1px 1px 0 rgba(255,255,255,.72);
+    }
+
+    .hardwareHomeBtnText{
+      font-size:13px;
+      font-weight:900;
+      letter-spacing:3px;
+      padding-top:1px;
+    }
+
+    .hardwareHomeBtn:active .hardwareHomeBtnInner{
+      transform:translate(4px,4px);
+      box-shadow:none;
+    }
+
+    .hardwareHomeBtn:focus-visible{
+      outline:3px solid var(--ink);
+      outline-offset:3px;
     }
 
     .brand{
@@ -996,6 +1049,31 @@
       }
     }
 
+    @media (max-height:700px){
+      .hardwareHomeBtn{
+        flex-basis:52px;
+        border-width:3px;
+        border-radius:13px 13px 26px 26px;
+        padding:6px;
+      }
+
+      .hardwareHomeBtnInner{
+        height:35px;
+        min-width:118px;
+      }
+
+      .hardwareHomeBtnIcon{
+        width:22px;
+        height:22px;
+        font-size:13px;
+      }
+
+      .hardwareHomeBtnText{
+        font-size:12px;
+        letter-spacing:2.5px;
+      }
+    }
+
     @media (max-height:560px){
       .phone::after{
         display:none;
@@ -1185,6 +1263,13 @@
       <!-- Toast is centered over everything -->
       <div class="toast" id="toast"></div>
     </section>
+
+    <button class="hardwareHomeBtn" id="hardwareHomeBtn" type="button" aria-label="Home">
+      <span class="hardwareHomeBtnInner">
+        <span class="hardwareHomeBtnIcon" aria-hidden="true">⌂</span>
+        <span class="hardwareHomeBtnText">HOME</span>
+      </span>
+    </button>
   </main>
 
   <script type="module">
@@ -2145,6 +2230,13 @@
     $("saveIdentityBtn").addEventListener("click", saveIdentity);
     $("addFriendBtn").addEventListener("click", addFriend);
     $("goHomeBtn").addEventListener("click", () => showView("homeView"));
+    $("hardwareHomeBtn").addEventListener("click", () => {
+      if (profile) {
+        showView("homeView");
+      } else {
+        showView("setupView");
+      }
+    });
     $("chatBackBtn").addEventListener("click", () => {
        if (currentChat && profile) update(ref(db, `friends/${profile.uid}/${currentChat.targetUid}`), { unread: 0 });
        showView("inboxView"); 
