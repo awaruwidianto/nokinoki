@@ -2,6 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  
+  <!-- ADDED: Forces Chrome to look in the nokinoki folder, fixing the 404 -->
+  <base href="/nokinoki/">
+
   <!-- Prevents zooming on iPhone -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   
@@ -2023,7 +2027,6 @@
         const badgeSpan = $("menuInboxBadge");
         if(badgeSpan) badgeSpan.textContent = totalUnread > 0 ? ` (${totalUnread})` : "";
         
-        // Badging API logic[cite: 1]
         if (navigator.setAppBadge) {
           if (totalUnread > 0) {
             navigator.setAppBadge(totalUnread).catch(e => console.error("Badge error:", e));
@@ -2160,7 +2163,16 @@
       `;
       line.querySelector(".smsText").textContent = msg.text || "";
       $("messages").appendChild(line);
-      $("messages").scrollTop = $("messages").scrollHeight;
+
+      // ADDED: Fix for the chat loading slowness! 
+      // Instead of forcing the phone to scroll 80 times instantly, it batches it.
+      if (!renderMessage.scrollTimer) {
+        renderMessage.scrollTimer = setTimeout(() => {
+          const msgBox = $("messages");
+          msgBox.scrollTop = msgBox.scrollHeight;
+          renderMessage.scrollTimer = null;
+        }, 10);
+      }
 
       if (!isMine && !msg._played && (typeof msg.createdAt !== 'number' || msg.createdAt > chatOpenedAt)) {
         soundIncoming();
