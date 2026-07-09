@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <!-- Prevents zooming on iPhone -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  
+  <!-- ADDED: This connects your app to the manifest.json file -->
+  <link rel="manifest" href="manifest.json" />
+  
   <title>NOKI NOKI</title>
   <style>
     :root{
@@ -1273,6 +1277,15 @@
   </main>
 
   <script type="module">
+    // --- ADDED: SERVICE WORKER REGISTRATION ---
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then((reg) => console.log('Service Worker registered', reg))
+          .catch((err) => console.log('Service Worker failed', err));
+      });
+    }
+
     const firebaseConfig = {
       apiKey: "AIzaSyDg0R36Cprmno-1564iciKuyQXhPrd1ieo",
       authDomain: "noki-noki-3f23e.firebaseapp.com",
