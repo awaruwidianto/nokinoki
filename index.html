@@ -1021,7 +1021,7 @@
     }
   </style>
 </head>
-<body class="theme-pink">
+<body class="theme-yellow">
 
   <!-- AWARU STARRY BACKDROP ELEMENTS -->
   <div class="cosmic-decoration">
@@ -1513,11 +1513,7 @@
     };
 
     const themes = [
-      { id:"pink", label:"Sakura Pink", swatch:"pink" },
       { id:"yellow", label:"Pudding Yellow", swatch:"yellow" },
-      { id:"blue", label:"Ice Blue", swatch:"blue" },
-      { id:"mint", label:"Mint", swatch:"mint" },
-      { id:"lavender", label:"Lavender", swatch:"lavender" },
       { id:"classic", label:"Classic Grey", swatch:"classic" }
     ];
     const avatars = ["💛","🌸","🐸","🐱","🐰","⭐","👾","🍓","☁️","🌙","🦋","🍀"];
@@ -1527,7 +1523,7 @@
     let friends = {};
     let selectedAvatar = avatars[0];
     let editProfileAvatar = avatars[0]; 
-    let selectedTheme = localStorage.getItem("nokiTheme") || "pink";
+    let selectedTheme = localStorage.getItem("nokiTheme") || "yellow";
     let activeView = "";
     let friendUnsubscribe = null;
     let messageUnsubscribe = null;
@@ -1541,7 +1537,7 @@
 
     function applyTheme(themeId) {
       const exists = themes.some(t => t.id === themeId);
-      selectedTheme = exists ? themeId : "pink";
+      selectedTheme = exists ? themeId : "yellow";
       document.body.className = "theme-" + selectedTheme;
       localStorage.setItem("nokiTheme", selectedTheme);
       renderThemeSelections();
