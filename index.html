@@ -29,66 +29,52 @@
        AWARU UNIVERSE COSMIC VARIABLES & KEYFRAMES (Sleek Aesthetic)
        ========================================================== */
     :root{
-      --body:#f4f4f4;
-      --body2:#eaeaea;
-      --body3:#111111;
+      --body:#ffe4e8;
+      --body2:#ffc2d1;
+      --body3:#ff9aab;
       --screen:#ffffff;
-      --screen2:#f4f4f4;
-      --screenBorder:#111111;
+      --screen2:#fff0f3;
+      --screenBorder:#ff9aab;
       --ink:#111111;
       --inkSoft:#555555;
       --button:#ffffff;
-      --button2:#f4f4f4;
-      --buttonBorder:#111111;
-      --buttonShadow:#111111;
-      --accent:#ff8c00;
-      --wall1:#ffffff;
-      --wall2:#cccccc;
+      --button2:#ffe4e8;
+      --buttonBorder:#ff9aab;
+      --buttonShadow:#ff9aab;
+      --accent:#ff9aab;
+      --wall1:#ffe4e8;
+      --wall2:#ffc2d1;
       --panel:rgba(255,255,255,.9);
-      --danger:#ff8c00;
+      --panelTop:rgba(255,255,255,.95);
+      --panelBot:rgba(255,255,255,.6);
+      --avatarBg:rgba(255,255,255,.8);
+      --danger:#ff9aab;
     }
 
-    body.theme-pink{
-      --body:#ffffff; --body2:#f4f4f4; --body3:#111111;
-      --screen:#ffffff; --screen2:#f4f4f4; --screenBorder:#111111;
-      --ink:#111111; --button:#ffffff; --button2:#f4f4f4;
-      --buttonBorder:#111111; --buttonShadow:#111111; --accent:#ff8c00;
-      --wall1:#ffffff; --wall2:#cccccc;
+    body.theme-allpink {
+      --body:#ffe4e8; --body2:#ffc2d1; --body3:#ff9aab;
+      --screen:#ffffff; --screen2:#fff0f3; --screenBorder:#ff9aab;
+      --ink:#111111; --inkSoft:#555555;
+      --button:#ffffff; --button2:#ffe4e8;
+      --buttonBorder:#ff9aab; --buttonShadow:#ff9aab; --accent:#ff9aab;
+      --wall1:#ffe4e8; --wall2:#ffc2d1;
+      --panel:rgba(255,255,255,.9);
+      --panelTop:rgba(255,255,255,.95);
+      --panelBot:rgba(255,255,255,.6);
+      --avatarBg:rgba(255,255,255,.8);
     }
-    body.theme-yellow{
-      --body:#f4f4f4; --body2:#e2e2e2; --body3:#111111;
-      --screen:#fafafa; --screen2:#eaeaea; --screenBorder:#111111;
-      --ink:#111111; --button:#ffffff; --button2:#eaeaea;
-      --buttonBorder:#111111; --buttonShadow:#111111; --accent:#fca311;
-      --wall1:#fafafa; --wall2:#cccccc;
-    }
-    body.theme-blue{
-      --body:#e2e2e2; --body2:#d1d1d1; --body3:#000000;
-      --screen:#ffffff; --screen2:#f4f4f4; --screenBorder:#000000;
-      --ink:#000000; --button:#ffffff; --button2:#f4f4f4;
-      --buttonBorder:#000000; --buttonShadow:#000000; --accent:#ff8c00;
-      --wall1:#ffffff; --wall2:#bbbbbb;
-    }
-    body.theme-mint{
-      --body:#ffffff; --body2:#d1d1d1; --body3:#111111;
-      --screen:#ffffff; --screen2:#e2e2e2; --screenBorder:#111111;
-      --ink:#111111; --button:#ffffff; --button2:#e2e2e2;
-      --buttonBorder:#111111; --buttonShadow:#111111; --accent:#ffb04f;
-      --wall1:#ffffff; --wall2:#cccccc;
-    }
-    body.theme-lavender{
-      --body:#cccccc; --body2:#f4f4f4; --body3:#111111;
-      --screen:#ffffff; --screen2:#f9f9f9; --screenBorder:#111111;
-      --ink:#111111; --button:#ffffff; --button2:#f9f9f9;
-      --buttonBorder:#111111; --buttonShadow:#111111; --accent:#ff8c00;
-      --wall1:#ffffff; --wall2:#d1d1d1;
-    }
-    body.theme-classic{
-      --body:#333333; --body2:#111111; --body3:#000000;
-      --screen:#111111; --screen2:#222222; --screenBorder:#ff8c00;
-      --ink:#ffffff; --button:#222222; --button2:#333333;
-      --buttonBorder:#ff8c00; --buttonShadow:#000000; --accent:#ff8c00;
+
+    body.theme-blackpink {
+      --body:#222222; --body2:#111111; --body3:#000000;
+      --screen:#111111; --screen2:#222222; --screenBorder:#ff9aab;
+      --ink:#ffffff; --inkSoft:#cccccc;
+      --button:#222222; --button2:#333333;
+      --buttonBorder:#ff9aab; --buttonShadow:#000000; --accent:#ff9aab;
       --wall1:#111111; --wall2:#333333;
+      --panel:rgba(34,34,34,.9);
+      --panelTop:rgba(51,51,51,.95);
+      --panelBot:rgba(17,17,17,.6);
+      --avatarBg:rgba(51,51,51,.8);
     }
 
     *{box-sizing:border-box}
@@ -107,9 +93,9 @@
       font-family: "Nunito", "Noto Sans KR", system-ui, sans-serif; 
       color: var(--ink);
       background:
-        radial-gradient(circle at 18% 16%, rgba(255, 140, 0, .08), transparent 28%),
+        radial-gradient(circle at 18% 16%, rgba(255, 154, 171, .08), transparent 28%),
         radial-gradient(circle at 82% 26%, rgba(0, 0, 0, .04), transparent 24%),
-        radial-gradient(circle at 45% 88%, rgba(255, 140, 0, .05), transparent 30%),
+        radial-gradient(circle at 45% 88%, rgba(255, 154, 171, .05), transparent 30%),
         linear-gradient(130deg, var(--wall2), var(--wall1), var(--body2), #ffffff);
       background-size: 200% 200%;
       animation: galaxyShift 22s ease-in-out infinite;
@@ -189,9 +175,9 @@
     .planet, .shooting-star, .particle, .star-clicker, .cozy-alien { position: absolute; will-change: transform; }
     .planet { border-radius: 50%; filter: drop-shadow(0 16px 28px rgba(0, 0, 0, .1)); animation: planetFloat 9s ease-in-out infinite, dynamicColorShift 12s linear infinite; }
     .planet::before { content: ""; position: absolute; inset: 46% -34%; height: 18%; border: 3px solid rgba(255,255,255,.8); border-radius: 50%; transform: rotate(-18deg); }
-    .planet.one { width: 86px; height: 86px; left: 7%; top: 10%; background: radial-gradient(circle at 35% 28%, #fff, #ff8c00 48%, #111); }
+    .planet.one { width: 86px; height: 86px; left: 7%; top: 10%; background: radial-gradient(circle at 35% 28%, #fff, #ff9aab 48%, #111); }
     .planet.two { width: 60px; height: 60px; right: 9%; top: 18%; background: radial-gradient(circle at 30% 24%, #fff, #e2e2e2 52%, #555); animation-delay: -2.5s; }
-    .planet.three { width: 104px; height: 104px; right: 4%; bottom: 10%; background: radial-gradient(circle at 32% 28%, #fff, #f4f4f4 34%, #ff8c00 76%); animation-delay: -5s; }
+    .planet.three { width: 104px; height: 104px; right: 4%; bottom: 10%; background: radial-gradient(circle at 32% 28%, #fff, #f4f4f4 34%, #ff9aab 76%); animation-delay: -5s; }
     .shooting-star { width: 130px; height: 2px; border-radius: 99px; background: linear-gradient(90deg, rgba(0,0,0,0), rgba(0,0,0,.2)); transform: rotate(-25deg); opacity: 0; animation: shooting 8s ease-in-out infinite; }
     .shooting-star.s1 { top: 12%; left: 58%; }
     .shooting-star.s2 { top: 36%; left: 18%; animation-delay: 3.6s; }
@@ -203,9 +189,9 @@
     }
     .star-clicker {
       width: 18px; height: 18px;
-      background: #ff8c00;
+      background: #ff9aab;
       clip-path: polygon(50% 0%, 61% 34%, 98% 35%, 68% 56%, 79% 91%, 50% 70%, 21% 91%, 32% 56%, 2% 35%, 39% 34%);
-      filter: drop-shadow(0 0 10px rgba(255,140,0,.4));
+      filter: drop-shadow(0 0 10px rgba(255,154,171,.4));
       pointer-events: auto;
       cursor: pointer;
       animation: twinkle 1.9s ease-in-out infinite;
@@ -422,7 +408,7 @@
     }
     .lcdPanel{
       border:3px solid var(--buttonBorder);
-      background:rgba(255,255,255,.9);
+      background:var(--panel);
       box-shadow:4px 4px 0 rgba(0,0,0,.1); 
       padding:8px;
       border-radius:5px; 
@@ -432,7 +418,7 @@
     input, textarea{
       width:100%;
       border:3px solid var(--buttonBorder);
-      background:rgba(255,255,255,.9);
+      background:var(--panel);
       color:var(--ink);
       font-family: inherit;
       font-weight:bold;
@@ -444,7 +430,7 @@
       font-size: 16px !important; 
     }
     textarea{resize:none;min-height:60px}
-    input::placeholder, textarea::placeholder{color:rgba(0,0,0,.42)}
+    input::placeholder, textarea::placeholder{color:var(--inkSoft)}
     label{
       display:block;
       font-size:11px;
@@ -461,7 +447,7 @@
     .hidden{display:none!important}
 
     .unreadBadge {
-      background: #ff8c00;
+      background: #ff9aab;
       color: #fff;
       font-size: 10px;
       font-weight: bold;
@@ -475,7 +461,7 @@
     .screenBtn, .menuItem, .themeChoice, .avatarChoice, .friendCard{
       width:100%;
       border:3px solid var(--buttonBorder);
-      background:rgba(255,255,255,.9);
+      background:var(--panel);
       color:var(--ink);
       padding:8px;
       border-radius:7px; 
@@ -491,7 +477,7 @@
     }
     .screenBtn{
       text-align:center;
-      background:rgba(255,255,255,.95);
+      background:var(--panelTop);
       margin-bottom: 6px;
     }
     .screenBtn.primary{
@@ -524,7 +510,7 @@
       font-size:13px;
       min-height:43px;
       padding:8px 9px;
-      background:linear-gradient(180deg, rgba(255,255,255,.9), rgba(255,255,255,.6));
+      background:linear-gradient(180deg, var(--panelTop), var(--panelBot));
     }
     .menuIcon{font-size:16px;width:30px;text-align:center;}
     .menuText{flex:1}
@@ -560,11 +546,11 @@
       text-align:center;
       padding:6px 2px;
       min-height:38px;
-      background:rgba(255,255,255,.8);
+      background:var(--avatarBg);
     }
     .avatarChoice.selected,.themeChoice.selected{
       border-color: var(--accent);
-      background:rgba(255,255,255,1);
+      background:var(--panelTop);
       transform:translate(2px,2px);
       box-shadow: 2px 2px 0 rgba(0,0,0,0.1);
     }
@@ -576,7 +562,7 @@
       gap:6px;
       align-items:center;
       font-size:11px;
-      background:rgba(255,255,255,.8);
+      background:var(--avatarBg);
     }
     .swatch{
       width:24px;
@@ -584,12 +570,8 @@
       border:3px solid var(--buttonBorder);
       flex:none;
     }
-    .swatch.pink{background:#ff8c00}
-    .swatch.yellow{background:#fca311}
-    .swatch.blue{background:#111111}
-    .swatch.mint{background:#d1d1d1}
-    .swatch.lavender{background:#555555}
-    .swatch.classic{background:#000000}
+    .swatch.allpink{background:#ff9aab}
+    .swatch.blackpink{background:#111111; border-color:#ff9aab}
 
     .profileCard{
       text-align:center;
@@ -610,7 +592,7 @@
       font-weight:bold;
       text-align:center;
       letter-spacing:1px;
-      background:rgba(255,255,255,.9);
+      background:var(--panel);
       margin:6px 0;
       user-select:text;
       border-radius:4px;
@@ -621,7 +603,7 @@
       align-items:center;
       gap:8px;
       margin-bottom:8px; 
-      background:linear-gradient(180deg, rgba(255,255,255,.9), rgba(255,255,255,.7));
+      background:linear-gradient(180deg, var(--panelTop), var(--panelBot));
     }
     .friendAvatar{
       width:34px;
@@ -630,7 +612,7 @@
       display:grid;
       place-items:center;
       font-size:20px;
-      background:rgba(255,255,255,.8);
+      background:var(--avatarBg);
       flex:none;
       border-radius:4px;
     }
@@ -682,7 +664,7 @@
       min-width:36px;
       padding:4px;
       border:3px solid var(--buttonBorder);
-      background:rgba(255,255,255,.9);
+      background:var(--panel);
       box-shadow:3px 3px 0 rgba(0,0,0,.1);
       color:var(--ink);
       font-family: inherit;
@@ -708,7 +690,7 @@
       margin:0 0 8px;
       padding:7px 9px;
       border:2px solid var(--buttonBorder);
-      background:#ffffff;
+      background:var(--screen);
       box-shadow:3px 3px 0 rgba(0,0,0,.08);
       word-break:break-word;
       max-width: 92%;
@@ -717,7 +699,7 @@
       align-self: flex-start;
     }
     .smsLine.mine{
-      background:#f4f4f4;
+      background:var(--screen2);
       text-align:left;
       align-self: flex-end;
       border-radius: 4px;
@@ -783,9 +765,9 @@
     .toast.show{display:block}
 
     .errorBox{
-      border:3px solid #ff8c00;
-      color:#ff8c00;
-      background:rgba(255,255,255,.9);
+      border:3px solid #ff9aab;
+      color:#ff9aab;
+      background:var(--panel);
       padding:10px;
       font-size:12px;
       font-weight:bold;
@@ -824,7 +806,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(255,255,255,0.9);
+      background: var(--panel);
       font-weight: bold;
       font-size: 14px;
       z-index: 10;
@@ -835,7 +817,7 @@
     .lang-btn.active-lang {
       opacity: 1;
       border-color: var(--accent);
-      background: rgba(255,255,255,1);
+      background: var(--panelTop);
       outline:2px solid var(--ink);
       outline-offset:-5px;
     }
@@ -868,7 +850,7 @@
       position: absolute;
       width: 600px;
       height: 600px;
-      background: radial-gradient(circle, rgba(255, 140, 0, 0.15) 0%, rgba(255, 176, 79, 0.05) 50%, transparent 70%);
+      background: radial-gradient(circle, rgba(255, 154, 171, 0.15) 0%, rgba(255, 176, 193, 0.05) 50%, transparent 70%);
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
@@ -918,7 +900,7 @@
     .ufo-svg {
       width: 100%;
       height: auto;
-      filter: drop-shadow(0 10px 20px rgba(255, 140, 0, 0.3));
+      filter: drop-shadow(0 10px 20px rgba(255, 154, 171, 0.3));
     }
 
     .ufo-light {
@@ -935,7 +917,7 @@
       top: 115px; 
       width: 160px;
       height: 280px;
-      background: linear-gradient(to bottom, rgba(255, 140, 0, 0.6) 0%, rgba(255, 140, 0, 0.1) 60%, rgba(255, 140, 0, 0) 100%);
+      background: linear-gradient(to bottom, rgba(255, 154, 171, 0.6) 0%, rgba(255, 154, 171, 0.1) 60%, rgba(255, 154, 171, 0) 100%);
       clip-path: polygon(45% 0%, 55% 0%, 100% 100%, 0% 100%);
       opacity: 0;
       transform: scaleY(0);
@@ -959,11 +941,11 @@
     @keyframes beamPulse {
       0% {
         opacity: 0.7;
-        filter: drop-shadow(0 0 5px rgba(255, 140, 0, 0.3));
+        filter: drop-shadow(0 0 5px rgba(255, 154, 171, 0.3));
       }
       100% {
         opacity: 1;
-        filter: drop-shadow(0 0 20px rgba(255, 140, 0, 0.6));
+        filter: drop-shadow(0 0 20px rgba(255, 154, 171, 0.6));
       }
     }
 
@@ -989,7 +971,7 @@
     }
     .cute-button:hover { transform: translateY(-3px) scale(1.02); filter: brightness(0.98); }
     .cute-button:active { transform: translateY(2px) scale(.98); box-shadow: 0 2px 0 #111; }
-    .pink-button { background: linear-gradient(180deg, #ffb04f, #ff8c00); color: #fff; }
+    .pink-button { background: linear-gradient(180deg, #ffb3c1, #ff9aab); color: #fff; }
 
     @media (max-height:700px){
       .phone{
@@ -1021,7 +1003,7 @@
     }
   </style>
 </head>
-<body class="theme-yellow">
+<body class="theme-allpink">
 
   <!-- AWARU STARRY BACKDROP ELEMENTS -->
   <div class="cosmic-decoration">
@@ -1067,11 +1049,11 @@
         <ellipse cx="100" cy="65" rx="85" ry="18" fill="url(#body-grad)" stroke="#111" stroke-width="2" />
         <ellipse cx="100" cy="72" rx="50" ry="12" fill="#111" />
 
-        <circle class="ufo-light" cx="35" cy="64" r="3.5" fill="#ff8c00" style="--speed: 0.4s;" />
-        <circle class="ufo-light" cx="65" cy="71" r="4" fill="#fca311" style="--speed: 0.6s;" />
+        <circle class="ufo-light" cx="35" cy="64" r="3.5" fill="#ff9aab" style="--speed: 0.4s;" />
+        <circle class="ufo-light" cx="65" cy="71" r="4" fill="#ffc2d1" style="--speed: 0.6s;" />
         <circle class="ufo-light" cx="100" cy="74" r="4.5" fill="#111111" style="--speed: 0.5s;" />
-        <circle class="ufo-light" cx="135" cy="71" r="4" fill="#fca311" style="--speed: 0.7s;" />
-        <circle class="ufo-light" cx="165" cy="64" r="3.5" fill="#ff8c00" style="--speed: 0.3s;" />
+        <circle class="ufo-light" cx="135" cy="71" r="4" fill="#ffc2d1" style="--speed: 0.7s;" />
+        <circle class="ufo-light" cx="165" cy="64" r="3.5" fill="#ff9aab" style="--speed: 0.3s;" />
       </svg>
       <div class="tractor-beam"></div>
     </div>
@@ -1513,8 +1495,8 @@
     };
 
     const themes = [
-      { id:"yellow", label:"Pudding Yellow", swatch:"yellow" },
-      { id:"classic", label:"Classic Grey", swatch:"classic" }
+      { id:"allpink", label:"All Pink", swatch:"allpink" },
+      { id:"blackpink", label:"Black & Pink", swatch:"blackpink" }
     ];
     const avatars = ["💛","🌸","🐸","🐱","🐰","⭐","👾","🍓","☁️","🌙","🦋","🍀"];
 
@@ -1523,7 +1505,7 @@
     let friends = {};
     let selectedAvatar = avatars[0];
     let editProfileAvatar = avatars[0]; 
-    let selectedTheme = localStorage.getItem("nokiTheme") || "yellow";
+    let selectedTheme = localStorage.getItem("nokiTheme") || "allpink";
     let activeView = "";
     let friendUnsubscribe = null;
     let messageUnsubscribe = null;
@@ -1537,7 +1519,7 @@
 
     function applyTheme(themeId) {
       const exists = themes.some(t => t.id === themeId);
-      selectedTheme = exists ? themeId : "yellow";
+      selectedTheme = exists ? themeId : "allpink";
       document.body.className = "theme-" + selectedTheme;
       localStorage.setItem("nokiTheme", selectedTheme);
       renderThemeSelections();
