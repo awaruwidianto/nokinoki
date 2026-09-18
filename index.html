@@ -24,6 +24,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
   <style>
     /* ==========================================================
        AWARU UNIVERSE COSMIC VARIABLES & KEYFRAMES (Sleek Aesthetic)
@@ -1001,6 +1003,587 @@
     @media (max-height:560px){
       .phone{border-radius:26px;}
     }
+
+    /* ==========================================================
+       PIXEL DETAIL PASS — visual-only overrides inspired by the
+       supplied reference. Existing HTML / IDs / JS stay unchanged.
+       ========================================================== */
+    :root{
+      --px-outline:#6b3b50;
+      --px-shadow:#d98eae;
+      --px-deep:#4d2a3b;
+      --px-paper:#fffafc;
+      --px-panel:#fff6fa;
+      --px-grid:rgba(255,255,255,.34);
+      --px-highlight:#ffffff;
+    }
+
+    body.theme-allpink{
+      --px-outline:#6b3b50;
+      --px-shadow:#d98eae;
+      --px-deep:#4d2a3b;
+      --px-paper:#fffafc;
+      --px-panel:#fff6fa;
+      --px-grid:rgba(255,255,255,.34);
+      --px-highlight:#ffffff;
+    }
+
+    body.theme-blackpink{
+      --px-outline:#ff9aab;
+      --px-shadow:#000000;
+      --px-deep:#ffffff;
+      --px-paper:#151515;
+      --px-panel:#202020;
+      --px-grid:rgba(255,154,171,.08);
+      --px-highlight:#353535;
+    }
+
+    body{
+      background:
+        linear-gradient(90deg, var(--px-grid) 1px, transparent 1px),
+        linear-gradient(var(--px-grid) 1px, transparent 1px),
+        linear-gradient(180deg, var(--wall2), var(--wall1) 48%, var(--body2));
+      background-size:22px 22px,22px 22px,100% 100%;
+      animation:none;
+      image-rendering:pixelated;
+    }
+
+    body::before{
+      background-image:
+        radial-gradient(circle at center, color-mix(in srgb, var(--accent) 36%, transparent) 0 2px, transparent 2.5px),
+        radial-gradient(circle at center, rgba(255,255,255,.9) 0 1.5px, transparent 2px);
+      background-size:92px 92px,67px 67px;
+      background-position:11px 7px,32px 39px;
+      animation:none;
+      opacity:.42;
+    }
+
+    body::after{
+      filter:none;
+      animation:none;
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.12),transparent 24%,transparent 78%,rgba(241,79,148,.05));
+    }
+
+    .cosmic-decoration{ image-rendering:pixelated; }
+    .planet{
+      border-radius:8px;
+      border:3px solid var(--px-outline);
+      box-shadow:4px 4px 0 var(--px-shadow);
+      filter:none;
+      animation-timing-function:steps(4,end), steps(4,end);
+    }
+    .planet::before{
+      inset:45% -26%;
+      height:14%;
+      border:3px solid var(--px-outline);
+      border-radius:2px;
+      background:rgba(255,255,255,.32);
+    }
+    .particle{
+      width:8px;
+      height:8px;
+      border-radius:0;
+      background:var(--px-outline);
+      box-shadow:8px 8px 0 color-mix(in srgb, var(--accent) 65%, transparent);
+    }
+    .star-clicker{
+      width:16px;
+      height:16px;
+      background:var(--accent);
+      clip-path:polygon(40% 0,60% 0,60% 40%,100% 40%,100% 60%,60% 60%,60% 100%,40% 100%,40% 60%,0 60%,0 40%,40% 40%);
+      filter:drop-shadow(2px 2px 0 var(--px-outline));
+      animation:twinkle 1.4s steps(2,end) infinite;
+    }
+    .cozy-alien{
+      filter:drop-shadow(3px 3px 0 color-mix(in srgb, var(--px-outline) 48%, transparent));
+      animation-timing-function:steps(5,end);
+    }
+
+    .phone{
+      width:min(372px, calc(100vw - 20px));
+      border:4px solid var(--px-outline);
+      border-radius:18px 18px 24px 24px;
+      padding:13px 12px 14px;
+      gap:8px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.12) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,.12) 1px, transparent 1px),
+        linear-gradient(180deg,var(--body),var(--body2) 68%,var(--body3));
+      background-size:12px 12px,12px 12px,100% 100%;
+      box-shadow:
+        inset 3px 3px 0 rgba(255,255,255,.5),
+        inset -3px -3px 0 rgba(0,0,0,.08),
+        8px 8px 0 var(--px-shadow),
+        0 20px 48px rgba(104,48,75,.12);
+    }
+
+    .brand{
+      font-family:"Press Start 2P", ui-monospace, monospace;
+      font-size:11px;
+      line-height:1.5;
+      letter-spacing:2px;
+      opacity:1;
+      text-shadow:2px 2px 0 rgba(255,255,255,.62);
+    }
+
+    .speaker{
+      width:88px;
+      height:12px;
+      border:3px solid var(--px-outline);
+      border-radius:3px;
+      background:
+        repeating-linear-gradient(90deg,var(--px-outline) 0 4px,transparent 4px 8px),
+        rgba(255,255,255,.26);
+      box-shadow:2px 2px 0 color-mix(in srgb, var(--px-shadow) 75%, transparent);
+    }
+
+    .screen{
+      border:4px solid var(--px-outline);
+      border-radius:7px;
+      background:
+        repeating-linear-gradient(0deg, rgba(17,17,17,.035) 0 1px, transparent 1px 4px),
+        linear-gradient(180deg,var(--screen),var(--screen2));
+      box-shadow:
+        inset 4px 4px 0 rgba(0,0,0,.08),
+        inset -2px -2px 0 rgba(255,255,255,.55),
+        3px 3px 0 color-mix(in srgb, var(--px-shadow) 74%, transparent);
+    }
+
+    .screen::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      z-index:30;
+      opacity:.16;
+      background:
+        linear-gradient(90deg, transparent 0 49%, rgba(255,255,255,.38) 50%, transparent 51%) 0 0/8px 8px,
+        linear-gradient(0deg, transparent 0 49%, rgba(17,17,17,.14) 50%, transparent 51%) 0 0/8px 8px;
+      mix-blend-mode:multiply;
+    }
+    .screen::after{
+      background:linear-gradient(90deg,rgba(255,255,255,.11),transparent 14%,transparent 86%,rgba(0,0,0,.05));
+      mix-blend-mode:multiply;
+    }
+
+    .statusbar{
+      height:29px;
+      padding:4px 7px;
+      border-bottom:3px solid var(--px-outline);
+      background:color-mix(in srgb, var(--panel) 84%, var(--accent) 16%);
+      font-family:"Press Start 2P", ui-monospace, monospace;
+      font-size:7px;
+      line-height:1.4;
+      letter-spacing:0;
+      position:relative;
+      z-index:32;
+    }
+
+    .view{
+      padding:9px;
+      position:relative;
+      z-index:31;
+      scrollbar-color:var(--accent) transparent;
+      scrollbar-width:thin;
+    }
+    .view::-webkit-scrollbar{ width:7px; }
+    .view::-webkit-scrollbar-track{ background:transparent; }
+    .view::-webkit-scrollbar-thumb{
+      background:var(--accent);
+      border:2px solid var(--px-outline);
+      border-radius:0;
+    }
+
+    .title{
+      font-family:"Press Start 2P", ui-monospace, monospace;
+      font-size:11px;
+      line-height:1.6;
+      letter-spacing:0;
+      margin-bottom:8px;
+      text-shadow:2px 2px 0 color-mix(in srgb, var(--accent) 28%, transparent);
+    }
+    .subtitle{
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.05em;
+    }
+
+    .lcdPanel,
+    .friendCard,
+    .smsLine,
+    .gameZone,
+    .toast,
+    .errorBox{
+      border-color:var(--px-outline);
+      border-radius:4px;
+      box-shadow:4px 4px 0 color-mix(in srgb, var(--px-shadow) 72%, transparent);
+      background:var(--panel);
+    }
+
+    .lcdPanel{
+      border-width:3px;
+      position:relative;
+      overflow:hidden;
+    }
+    .lcdPanel::after{
+      content:"";
+      position:absolute;
+      pointer-events:none;
+      left:0;right:0;bottom:0;height:5px;
+      background:repeating-linear-gradient(90deg,var(--accent) 0 8px,transparent 8px 16px);
+      opacity:.22;
+    }
+
+    label,
+    .tiny,
+    .smsMeta,
+    .friendSub{
+      font-weight:900;
+      letter-spacing:.045em;
+    }
+
+    input, textarea{
+      border:3px solid var(--px-outline);
+      border-radius:3px;
+      background:var(--panel);
+      box-shadow:inset 3px 3px 0 rgba(0,0,0,.055);
+      font-weight:800;
+    }
+    input:focus, textarea:focus{
+      border-color:var(--accent);
+      outline:2px solid color-mix(in srgb, var(--accent) 32%, transparent);
+      outline-offset:1px;
+    }
+
+    .screenBtn,
+    .menuItem,
+    .themeChoice,
+    .avatarChoice,
+    .friendCard,
+    .chatBack,
+    .removeBtn{
+      border:3px solid var(--px-outline);
+      border-radius:4px;
+      box-shadow:
+        inset 1px 1px 0 rgba(255,255,255,.7),
+        4px 4px 0 color-mix(in srgb, var(--px-shadow) 72%, transparent);
+    }
+
+    .screenBtn,
+    .menuItem,
+    .themeChoice,
+    .avatarChoice,
+    .chatBack,
+    .removeBtn{
+      font-weight:900;
+    }
+
+    .screenBtn{
+      min-height:39px;
+      font-family:"Press Start 2P", ui-monospace, monospace;
+      font-size:7px;
+      line-height:1.45;
+      letter-spacing:0;
+      background:var(--panelTop);
+    }
+    .screenBtn.primary{
+      background:var(--ink);
+      color:var(--screen);
+      border-color:var(--px-outline);
+      box-shadow:4px 4px 0 var(--accent);
+    }
+    body.theme-blackpink .screenBtn.primary{
+      background:var(--accent);
+      color:#111;
+      box-shadow:4px 4px 0 #000;
+    }
+    .screenBtn.danger{
+      background:color-mix(in srgb, var(--accent) 28%, var(--panel));
+      border-color:var(--px-outline);
+      color:var(--ink);
+    }
+    .screenBtn:active,
+    .menuItem:active,
+    .themeChoice:active,
+    .avatarChoice:active,
+    .friendCard:active,
+    .chatBack:active,
+    .removeBtn:active{
+      transform:translate(4px,4px);
+      box-shadow:none;
+    }
+
+    .menuList{ gap:8px; }
+    .menuItem{
+      min-height:46px;
+      padding:8px 9px;
+      background:
+        linear-gradient(90deg, color-mix(in srgb, var(--accent) 11%, transparent) 1px, transparent 1px),
+        linear-gradient(color-mix(in srgb, var(--accent) 11%, transparent) 1px, transparent 1px),
+        var(--panel);
+      background-size:8px 8px,8px 8px,100% 100%;
+    }
+    .menuIcon{
+      width:32px;
+      height:32px;
+      display:grid;
+      place-items:center;
+      border:2px solid var(--px-outline);
+      border-radius:3px;
+      background:color-mix(in srgb, var(--accent) 18%, var(--panel));
+      box-shadow:2px 2px 0 color-mix(in srgb, var(--px-shadow) 70%, transparent);
+      font-size:16px;
+    }
+    .menuText{
+      font-family:"Press Start 2P", ui-monospace, monospace;
+      font-size:7px;
+      line-height:1.55;
+    }
+    .menuArrow{
+      width:18px;
+      height:22px;
+      display:grid;
+      place-items:center;
+      border-left:2px solid var(--px-outline);
+      font-family:"Press Start 2P", monospace;
+      font-size:12px;
+    }
+
+    .homeClock{
+      font-family:"Press Start 2P", ui-monospace, monospace;
+      font-size:clamp(25px,9vw,34px);
+      line-height:1.35;
+      letter-spacing:2px;
+      text-shadow:3px 3px 0 color-mix(in srgb, var(--accent) 42%, transparent);
+    }
+    .homeHello{
+      font-family:"Press Start 2P", ui-monospace, monospace;
+      font-size:7px;
+      line-height:1.6;
+      letter-spacing:0;
+    }
+
+    .avatarGrid,.themeGrid{ gap:8px; }
+    .avatarChoice{
+      border-radius:3px;
+      background:var(--avatarBg);
+    }
+    .avatarChoice.selected,.themeChoice.selected{
+      outline:2px solid var(--px-outline);
+      outline-offset:-6px;
+      transform:translate(2px,2px);
+      box-shadow:2px 2px 0 color-mix(in srgb, var(--px-shadow) 72%, transparent);
+    }
+    .themeChoice{
+      min-height:50px;
+      background:var(--avatarBg);
+    }
+    .swatch{
+      border:3px solid var(--px-outline);
+      border-radius:0;
+      box-shadow:2px 2px 0 color-mix(in srgb, var(--px-shadow) 70%, transparent);
+    }
+
+    .profileCard{ padding-bottom:12px; }
+    .bigAvatar{
+      display:inline-grid;
+      place-items:center;
+      min-width:58px;
+      min-height:58px;
+      padding:6px;
+      border:3px solid var(--px-outline);
+      border-radius:4px;
+      background:color-mix(in srgb, var(--accent) 13%, var(--panel));
+      box-shadow:4px 4px 0 color-mix(in srgb, var(--px-shadow) 70%, transparent);
+    }
+    .profileName{
+      margin-top:8px;
+      font-family:"Press Start 2P", ui-monospace, monospace;
+      font-size:9px;
+      line-height:1.5;
+    }
+    .codeBox{
+      border:3px dashed var(--px-outline);
+      border-radius:2px;
+      font-family:"Press Start 2P", ui-monospace, monospace;
+      font-size:8px;
+      line-height:1.5;
+      box-shadow:2px 2px 0 color-mix(in srgb, var(--px-shadow) 50%, transparent);
+    }
+
+    .friendCard{
+      padding:8px;
+      background:var(--panel);
+    }
+    .friendAvatar{
+      border:3px solid var(--px-outline);
+      border-radius:3px;
+      box-shadow:2px 2px 0 color-mix(in srgb, var(--px-shadow) 70%, transparent);
+    }
+    .friendName{
+      font-family:"Press Start 2P", ui-monospace, monospace;
+      font-size:7px;
+      line-height:1.55;
+    }
+
+    .chatHeader{
+      border-bottom:3px solid var(--px-outline);
+      background:color-mix(in srgb, var(--panel) 88%, var(--accent) 12%);
+    }
+    .chatTitle{
+      font-family:"Press Start 2P", ui-monospace, monospace;
+      font-size:8px;
+      line-height:1.5;
+    }
+    .smsLine{
+      border-width:2px;
+      border-radius:3px;
+      box-shadow:3px 3px 0 color-mix(in srgb, var(--px-shadow) 58%, transparent);
+    }
+    .smsLine.mine{
+      background:color-mix(in srgb, var(--accent) 11%, var(--screen2));
+      border-radius:3px;
+    }
+    .smsMeta{
+      font-family:"Press Start 2P", ui-monospace, monospace;
+      font-size:6px;
+      line-height:1.5;
+      border-bottom:2px dashed color-mix(in srgb, var(--px-outline) 45%, transparent);
+    }
+    .composer{
+      border-top:3px solid var(--px-outline);
+      background:color-mix(in srgb, var(--panel) 90%, var(--accent) 10%);
+    }
+
+    .gameZone{
+      border:3px solid var(--px-outline);
+      border-radius:3px;
+      background:
+        linear-gradient(180deg,var(--screen2) 0 66%, color-mix(in srgb, var(--accent) 32%, var(--screen2)) 66% 72%, color-mix(in srgb, var(--accent) 48%, var(--screen2)) 72% 100%);
+      box-shadow:inset 3px 3px 0 rgba(0,0,0,.055),4px 4px 0 color-mix(in srgb, var(--px-shadow) 70%, transparent);
+    }
+    .gameZone::after{
+      content:"";
+      position:absolute;
+      left:0;right:0;bottom:16%;height:8px;
+      border-top:2px solid var(--px-outline);
+      border-bottom:2px solid var(--px-outline);
+      background:repeating-linear-gradient(90deg,#fff 0 8px,color-mix(in srgb,var(--accent) 35%,#fff) 8px 16px);
+      opacity:.75;
+      pointer-events:none;
+    }
+    .gameSprite{
+      image-rendering:pixelated;
+      filter:drop-shadow(2px 2px 0 color-mix(in srgb, var(--px-outline) 40%, transparent));
+    }
+    .gameOverlay{
+      font-family:"Press Start 2P", ui-monospace, monospace;
+      font-size:8px;
+      line-height:1.7;
+      background:color-mix(in srgb, var(--panel) 90%, transparent);
+    }
+
+    .toast{
+      border:4px solid var(--px-outline);
+      border-radius:4px;
+      box-shadow:6px 6px 0 var(--px-shadow);
+      font-family:"Press Start 2P", ui-monospace, monospace;
+      font-size:8px;
+      line-height:1.7;
+    }
+    .errorBox{
+      border:3px solid var(--accent);
+      border-radius:3px;
+      box-shadow:4px 4px 0 color-mix(in srgb, var(--accent) 34%, transparent);
+    }
+    .unreadBadge{
+      border:2px solid var(--px-outline);
+      border-radius:2px;
+      box-shadow:2px 2px 0 color-mix(in srgb, var(--px-shadow) 68%, transparent);
+      font-family:"Press Start 2P", ui-monospace, monospace;
+      font-size:6px;
+      line-height:1.45;
+    }
+
+    .hardwareHomeBtn{
+      flex-basis:clamp(58px,10dvh,74px);
+      border:4px solid var(--px-outline);
+      border-radius:8px 8px 14px 14px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.12) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,.12) 1px, transparent 1px),
+        linear-gradient(180deg,var(--body2),var(--body));
+      background-size:10px 10px,10px 10px,100% 100%;
+      box-shadow:inset 3px 3px 0 rgba(255,255,255,.46), inset -3px -3px 0 rgba(0,0,0,.08);
+    }
+    .hardwareHomeBtnInner{
+      min-width:138px;
+      height:42px;
+      border:3px solid var(--px-outline);
+      border-radius:5px;
+      background:var(--panel);
+      box-shadow:4px 4px 0 color-mix(in srgb, var(--px-shadow) 74%, transparent);
+    }
+    .hardwareHomeBtnIcon{
+      width:25px;
+      height:25px;
+      border:2px solid var(--px-outline);
+      border-radius:2px;
+      background:color-mix(in srgb, var(--accent) 14%, var(--panel));
+      box-shadow:2px 2px 0 color-mix(in srgb, var(--px-shadow) 62%, transparent);
+    }
+    .hardwareHomeBtnText{
+      font-family:"Press Start 2P", ui-monospace, monospace;
+      font-size:8px;
+      line-height:1.4;
+      letter-spacing:1px;
+    }
+
+    #openingOverlay{
+      image-rendering:pixelated;
+      background:#09070d !important;
+    }
+    #openingOverlay .star{ border-radius:0; }
+    #openingOverlay .nebula{ filter:blur(18px); }
+    .ufo-svg{
+      shape-rendering:crispEdges;
+      filter:drop-shadow(5px 5px 0 rgba(255,154,171,.28));
+    }
+    #startOpeningBtn{
+      border:3px solid #6b3b50 !important;
+      border-radius:4px !important;
+      background:#ffb3cf !important;
+      color:#4d2a3b !important;
+      box-shadow:5px 5px 0 #d98eae !important;
+      font-family:"Press Start 2P", ui-monospace, monospace !important;
+      font-size:8px !important;
+      line-height:1.5 !important;
+      padding:11px 16px !important;
+    }
+    #startOpeningBtn:hover{ transform:translateY(-2px); }
+    #startOpeningBtn:active{ transform:translate(4px,4px); box-shadow:1px 1px 0 #d98eae !important; }
+
+    @media (max-height:700px){
+      .phone{ border-radius:15px 15px 20px 20px; }
+      .brand{ font-size:9px; }
+      .speaker{ height:10px; }
+      .menuItem{ min-height:40px; }
+      .homeClock{ font-size:26px; }
+    }
+
+    @media (max-width:420px){
+      .phone{
+        width:calc(100vw - 12px);
+        border-width:3px;
+        box-shadow:6px 6px 0 var(--px-shadow);
+      }
+      .title{ font-size:10px; }
+      .menuText{ font-size:6px; }
+      .screenBtn{ font-size:6px; }
+      .statusbar{ font-size:6px; }
+    }
+
   </style>
 </head>
 <body class="theme-allpink">
