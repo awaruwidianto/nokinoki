@@ -1,6 +1,9 @@
-// NOKI NOKI Service Worker (PWA + Background & Push Notifications)
-const CACHE_NAME = 'noki-noki-v3';
+// NOKI NOKI Service Worker v4 (Persistent Background Watch + Sound & Push Notifications)
+const CACHE_NAME = 'noki-noki-v4';
 const DB_URL = 'https://noki-noki-3f23e-default-rtdb.asia-southeast1.firebasedatabase.app';
+
+let bgWatchRunning = false;
+let lastClientSyncAt = 0;
 
 // --- IndexedDB Helper for persisting user state in Service Worker ---
 function openSwDb() {
@@ -69,35 +72,13 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Receive user session & unread state from index.html
-self.addEventListener('message', (event) => {
-  const data = event.data;
-  if (!data) return;
-
-  if (data.type === 'SET_USER') {
-    event.waitUntil(
-      (async () => {
-        const existing = (await idbGet('userState')) || {};
-        const updated = {
-          uid: data.uid !== undefined ? data.uid : existing.uid,
-          lang: data.lang || existing.lang || 'en',
-          notifEnabled: data.notifEnabled !== undefined ? data.notifEnabled : existing.notifEnabled,
-          unreadMap: data.unreadMap || existing.unreadMap || {}
-        };
-        await idbSet('userState', updated);
-      })()
-    );
-  }
-});
-
 // Check Firebase RTDB for new unread messages when tab is in background or closed
 async function checkUnreadMessagesInBackground() {
   const state = await idbGet('userState');
   if (!state || !state.uid || !state.notifEnabled) return;
 
-  // Check if any client window is currently visible & focused
   const clientList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-  const anyFocused = clientList.some((c) => c.focused || c.visibilityState === 'visible');
+  const anyFocused = clientList.some((c) => c.focused && c.visibilityState === 'visible');
   if (anyFocused) return;
 
   try {
@@ -135,8 +116,16 @@ async function checkUnreadMessagesInBackground() {
           badge: 'icon.png',
           tag: 'noki-msg-' + f.uid,
           renotify: true,
+          silent: false,
+          vibrate: [200, 100, 200],
+          requireInteraction: true,
           data: { friendUid: f.uid, url: '/nokinoki/' }
         });
+
+        // Also tell any open background tab to play the retro NOKI NOKI chime
+        for (const client of clientList) {
+          client.postMessage({ type: 'PLAY_CHIME', friendUid: f.uid });
+        }
       }
     }
 
@@ -152,6 +141,52 @@ async function checkUnreadMessagesInBackground() {
     }
   } catch (e) {}
 }
+
+// Persistent background watch loop when app is minimized or tab is backgrounded
+async function runBackgroundWatchLoop() {
+  if (bgWatchRunning) return;
+  bgWatchRunning = true;
+  try {
+    for (let i = 0; i < 90; i++) {
+      await new Promise((r) => setTimeout(r, 4000));
+      const clientList = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+      const anyFocused = clientList.some((c) => c.focused && c.visibilityState === 'visible');
+      if (anyFocused) break;
+
+      // If client is not actively syncing (e.g., tab throttled or closed), poll from SW
+      if (Date.now() - lastClientSyncAt > 3500 || clientList.length === 0) {
+        await checkUnreadMessagesInBackground();
+      }
+    }
+  } finally {
+    bgWatchRunning = false;
+  }
+}
+
+// Receive user session & background watch triggers from index.html
+self.addEventListener('message', (event) => {
+  const data = event.data;
+  if (!data) return;
+
+  if (data.type === 'SET_USER' || data.type === 'START_BG_WATCH') {
+    lastClientSyncAt = Date.now();
+    event.waitUntil(
+      (async () => {
+        const existing = (await idbGet('userState')) || {};
+        const updated = {
+          uid: data.uid !== undefined ? data.uid : existing.uid,
+          lang: data.lang || existing.lang || 'en',
+          notifEnabled: data.notifEnabled !== undefined ? data.notifEnabled : existing.notifEnabled,
+          unreadMap: data.unreadMap || existing.unreadMap || {}
+        };
+        await idbSet('userState', updated);
+        if (data.type === 'START_BG_WATCH') {
+          await runBackgroundWatchLoop();
+        }
+      })()
+    );
+  }
+});
 
 self.addEventListener('periodicsync', (event) => {
   if (event.tag === 'noki-msg-sync') {
@@ -186,6 +221,9 @@ self.addEventListener('push', (event) => {
     badge: 'icon.png',
     tag: payload.tag || 'noki-push',
     renotify: true,
+    silent: false,
+    vibrate: [200, 100, 200],
+    requireInteraction: true,
     data: { url: (payload.data && payload.data.url) || '/nokinoki/' }
   };
 

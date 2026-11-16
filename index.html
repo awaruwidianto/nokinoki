@@ -1851,8 +1851,11 @@
           .catch((err) => console.log('Service Worker failed', err));
       });
       navigator.serviceWorker.addEventListener('message', (event) => {
-        if (event.data && event.data.type === 'OPEN_INBOX' && profile) {
+        if (!event.data) return;
+        if (event.data.type === 'OPEN_INBOX' && profile) {
           showView('inboxView');
+        } else if (event.data.type === 'PLAY_CHIME') {
+          soundIncoming();
         }
       });
     }
@@ -1948,61 +1951,196 @@
       updateSettingsLabels();
     }
 
-    // --- SOUND SYSTEM ---
+    // --- SOUND SYSTEM & BACKGROUND KEEP-ALIVE AUDIO ---
     let soundEnabled = localStorage.getItem("nokiSound") !== "false";
     let audioCtx = null;
-    
+
+    function buildWavDataUri(segments, sampleRate = 22050) {
+      let totalSamples = 0;
+      for (const seg of segments) {
+        totalSamples += Math.floor(seg.duration * sampleRate);
+      }
+      const buffer = new ArrayBuffer(44 + totalSamples * 2);
+      const view = new DataView(buffer);
+      const writeStr = (offset, str) => {
+        for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+      };
+      writeStr(0, "RIFF");
+      view.setUint32(4, 36 + totalSamples * 2, true);
+      writeStr(8, "WAVE");
+      writeStr(12, "fmt ");
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, 1, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * 2, true);
+      view.setUint16(32, 2, true);
+      view.setUint16(34, 16, true);
+      writeStr(36, "data");
+      view.setUint32(40, totalSamples * 2, true);
+
+      let offset = 44;
+      for (const seg of segments) {
+        const count = Math.floor(seg.duration * sampleRate);
+        const freq = seg.freq || 0;
+        const vol = seg.volume !== undefined ? seg.volume : 0.65;
+        for (let i = 0; i < count; i++) {
+          let sample = 0;
+          if (freq > 0) {
+            const t = i / sampleRate;
+            const env = Math.exp(-3.5 * (i / count));
+            sample = Math.sin(2 * Math.PI * freq * t) * vol * env;
+          }
+          const pcm = Math.max(-1, Math.min(1, sample));
+          view.setInt16(offset, pcm * 32767, true);
+          offset += 2;
+        }
+      }
+
+      const bytes = new Uint8Array(buffer);
+      let binary = "";
+      for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return "data:audio/wav;base64," + btoa(binary);
+    }
+
+    // Retro dual-tone NOKI NOKI incoming message chime WAV (works even when tab is backgrounded)
+    const chimeAudio = new Audio(
+      buildWavDataUri([
+        { freq: 880, duration: 0.11, volume: 0.85 },
+        { freq: 0, duration: 0.02, volume: 0 },
+        { freq: 1320, duration: 0.18, volume: 0.9 }
+      ])
+    );
+    chimeAudio.preload = "auto";
+    chimeAudio.playsInline = true;
+
+    // Imperceptible looping WAV that keeps the browser tab / bookmarked app alive in the background
+    const keepAliveAudio = new Audio(
+      buildWavDataUri([{ freq: 1, duration: 1.0, volume: 0.0001 }], 8000)
+    );
+    keepAliveAudio.loop = true;
+    keepAliveAudio.volume = 0.01;
+    keepAliveAudio.preload = "auto";
+    keepAliveAudio.playsInline = true;
+    let keepAliveStarted = false;
+
+    function startBackgroundKeepAlive() {
+      try {
+        if ("audioSession" in navigator && navigator.audioSession) {
+          navigator.audioSession.type = "ambient";
+        }
+      } catch (e) {}
+
+      if (!keepAliveStarted || keepAliveAudio.paused) {
+        keepAliveAudio.play().then(() => {
+          keepAliveStarted = true;
+        }).catch(() => {});
+      }
+
+      if (audioCtx && !audioCtx._keepAliveOsc) {
+        try {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          gain.gain.value = 0.00001;
+          osc.frequency.value = 1;
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          audioCtx._keepAliveOsc = osc;
+        } catch (e) {}
+      }
+    }
+
+    // Request persistent Web Lock so the browser does not freeze or discard the background tab
+    if (navigator.locks && navigator.locks.request) {
+      navigator.locks.request("noki_background_keep_alive", { mode: "shared" }, () => {
+        return new Promise(() => {});
+      }).catch(() => {});
+    }
+
     function initAudio() {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
       if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
+        audioCtx.resume().catch(() => {});
       }
       if (!audioCtx._unlocked) {
-        const buffer = audioCtx.createBuffer(1, 1, 22050);
-        const source = audioCtx.createBufferSource();
-        source.buffer = buffer;
-        source.connect(audioCtx.destination);
-        source.start(0);
-        audioCtx._unlocked = true;
+        try {
+          const buffer = audioCtx.createBuffer(1, 1, 22050);
+          const source = audioCtx.createBufferSource();
+          source.buffer = buffer;
+          source.connect(audioCtx.destination);
+          source.start(0);
+          audioCtx._unlocked = true;
+        } catch (e) {}
       }
+      startBackgroundKeepAlive();
     }
 
     const unlockEvents = ['click', 'touchstart', 'keydown'];
     const unlockAudio = () => {
       initAudio();
-      unlockEvents.forEach(e => document.removeEventListener(e, unlockAudio));
+      // Prime chimeAudio element on first gesture so background playback is permitted on iOS/Android
+      if (!chimeAudio._primed) {
+        chimeAudio.muted = true;
+        chimeAudio.play().then(() => {
+          chimeAudio.pause();
+          chimeAudio.currentTime = 0;
+          chimeAudio.muted = false;
+          chimeAudio._primed = true;
+        }).catch(() => {
+          chimeAudio.muted = false;
+        });
+      }
     };
-    unlockEvents.forEach(e => document.addEventListener(e, unlockAudio, { once: true }));
+    unlockEvents.forEach(e => document.addEventListener(e, unlockAudio, { passive: true }));
 
-    function playBeep(freq, type, duration) {
+    function playBeep(freq, type, duration, delaySec = 0) {
       if (!soundEnabled) return;
       initAudio();
-      if (audioCtx.state !== 'running') return; 
 
-      try {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = type; 
-        osc.frequency.value = freq;
-        osc.connect(gain); 
-        gain.connect(audioCtx.destination);
-        
-        const now = audioCtx.currentTime;
-        
-        gain.gain.setValueAtTime(1, now);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-        
-        osc.start(now);
-        osc.stop(now + duration);
-      } catch (e) { }
+      const scheduleTone = () => {
+        try {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = type; 
+          osc.frequency.value = freq;
+          osc.connect(gain); 
+          gain.connect(audioCtx.destination);
+          
+          const now = audioCtx.currentTime + delaySec;
+          gain.gain.setValueAtTime(1, now);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+          
+          osc.start(now);
+          osc.stop(now + duration);
+        } catch (e) { }
+      };
+
+      if (audioCtx.state !== 'running') {
+        audioCtx.resume().then(scheduleTone).catch(() => {});
+      } else {
+        scheduleTone();
+      }
     }
     
     function soundTyping() { playBeep(300, 'square', 0.05); }
     function soundIncoming() {
-      playBeep(800, 'sine', 0.1);
-      setTimeout(() => playBeep(1200, 'sine', 0.15), 100);
+      if (!soundEnabled) return;
+      // Play via HTML5 Audio element (works reliably in background tabs) + Web Audio API
+      try {
+        chimeAudio.muted = false;
+        chimeAudio.currentTime = 0;
+        chimeAudio.play().catch(() => {});
+      } catch (e) {}
+      playBeep(800, 'sine', 0.1, 0);
+      playBeep(1200, 'sine', 0.15, 0.1);
+      if (navigator.vibrate) {
+        try { navigator.vibrate([180, 80, 180]); } catch (e) {}
+      }
     }
     function soundClick() { playBeep(450, 'square', 0.025); }
     function soundJump() { playBeep(600, 'square', 0.05); }
@@ -2563,6 +2701,9 @@
         badge: "icon.png",
         tag: "noki-msg-" + (friend.uid || "chat"),
         renotify: true,
+        silent: false,
+        vibrate: [200, 100, 200],
+        requireInteraction: true,
         data: { friendUid: friend.uid || null, url: "/nokinoki/" }
       };
       try {
@@ -2757,6 +2898,109 @@
 
     let prevUnreadMap = {};
     let initialFriendsLoaded = false;
+    let bgWorker = null;
+
+    function processFriendsSnapshot(incomingFriends) {
+      friends = incomingFriends || {};
+
+      let totalUnread = 0;
+      const currentUnreadMap = {};
+      Object.values(friends).forEach(f => { 
+        if (f && f.uid) {
+          const count = f.unread || 0;
+          totalUnread += count;
+          currentUnreadMap[f.uid] = count;
+
+          if (initialFriendsLoaded) {
+            const prevCount = prevUnreadMap[f.uid] || 0;
+            if (count > prevCount) {
+              const inThisChat = (activeView === "chatView" && currentChat?.targetUid === f.uid && !document.hidden && document.hasFocus());
+              if (!inThisChat) {
+                soundIncoming();
+                triggerMessageNotification(f);
+              }
+            }
+          }
+        }
+      });
+      prevUnreadMap = currentUnreadMap;
+      initialFriendsLoaded = true;
+      syncUserToSW(currentUnreadMap);
+
+      const badgeSpan = $("menuInboxBadge");
+      if(badgeSpan) badgeSpan.textContent = totalUnread > 0 ? ` (${totalUnread})` : "";
+      
+      if (navigator.setAppBadge) {
+        if (totalUnread > 0) {
+          navigator.setAppBadge(totalUnread).catch(e => console.error("Badge error:", e));
+        } else {
+          navigator.clearAppBadge().catch(e => console.error("Badge clear error:", e));
+        }
+      }
+
+      if (activeView === "inboxView") renderInbox();
+      if (activeView === "friendsView") renderFriends();
+    }
+
+    function startBackgroundWorker() {
+      if (bgWorker) return;
+      try {
+        const workerCode = `
+          let timer = null;
+          self.onmessage = (e) => {
+            if (e.data === 'START') {
+              if (timer) clearInterval(timer);
+              timer = setInterval(() => self.postMessage('TICK'), 4000);
+            }
+          };
+        `;
+        const blob = new Blob([workerCode], { type: "application/javascript" });
+        bgWorker = new Worker(URL.createObjectURL(blob));
+        bgWorker.onmessage = async () => {
+          if (!currentUser?.uid) return;
+          startBackgroundKeepAlive();
+          syncUserToSW(prevUnreadMap);
+          if (document.hidden || !document.hasFocus()) {
+            try {
+              const res = await fetch(`${firebaseConfig.databaseURL}friends/${encodeURIComponent(currentUser.uid)}.json`, { cache: "no-store" });
+              if (res.ok) {
+                const data = await res.json();
+                processFriendsSnapshot(data || {});
+              }
+            } catch (e) {}
+          }
+        };
+        bgWorker.postMessage("START");
+      } catch (e) {}
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      startBackgroundKeepAlive();
+      if (document.hidden && currentUser?.uid) {
+        syncUserToSW(prevUnreadMap);
+        if (navigator.serviceWorker?.controller) {
+          navigator.serviceWorker.controller.postMessage({
+            type: "START_BG_WATCH",
+            uid: currentUser.uid,
+            lang: currentLang,
+            notifEnabled: isNotifGranted(),
+            unreadMap: prevUnreadMap
+          });
+        }
+      }
+    });
+
+    window.addEventListener("pagehide", () => {
+      if (currentUser?.uid && navigator.serviceWorker?.controller) {
+        navigator.serviceWorker.controller.postMessage({
+          type: "START_BG_WATCH",
+          uid: currentUser.uid,
+          lang: currentLang,
+          notifEnabled: isNotifGranted(),
+          unreadMap: prevUnreadMap
+        });
+      }
+    });
 
     function watchFriends() {
       if (!currentUser || friendUnsubscribe) return;
@@ -2766,48 +3010,9 @@
           syncUserToSW();
         }).catch(() => {});
       }
+      startBackgroundWorker();
       friendUnsubscribe = onValue(ref(db, `friends/${currentUser.uid}`), snap => {
-        friends = snap.val() || {};
-        
-        let totalUnread = 0;
-        const currentUnreadMap = {};
-        Object.values(friends).forEach(f => { 
-          if (f && f.uid) {
-            const count = f.unread || 0;
-            totalUnread += count;
-            currentUnreadMap[f.uid] = count;
-
-            if (initialFriendsLoaded) {
-              const prevCount = prevUnreadMap[f.uid] || 0;
-              if (count > prevCount) {
-                const inThisChat = (activeView === "chatView" && currentChat?.targetUid === f.uid && !document.hidden);
-                if (!inThisChat) {
-                  soundIncoming();
-                  if (document.hidden || !document.hasFocus()) {
-                    triggerMessageNotification(f);
-                  }
-                }
-              }
-            }
-          }
-        });
-        prevUnreadMap = currentUnreadMap;
-        initialFriendsLoaded = true;
-        syncUserToSW(currentUnreadMap);
-
-        const badgeSpan = $("menuInboxBadge");
-        if(badgeSpan) badgeSpan.textContent = totalUnread > 0 ? ` (${totalUnread})` : "";
-        
-        if (navigator.setAppBadge) {
-          if (totalUnread > 0) {
-            navigator.setAppBadge(totalUnread).catch(e => console.error("Badge error:", e));
-          } else {
-            navigator.clearAppBadge().catch(e => console.error("Badge clear error:", e));
-          }
-        }
-
-        if (activeView === "inboxView") renderInbox();
-        if (activeView === "friendsView") renderFriends();
+        processFriendsSnapshot(snap.val() || {});
       });
     }
 
