@@ -1586,7 +1586,7 @@
       text-shadow: 5px 5px 0 #fff, 8px 8px 0 rgba(107,59,80,.18);
     }
     .ufo-loader::after {
-      content: "LOADING QUEST...";
+      content: "LOADING CHAT...";
       position: absolute;
       left: 50%;
       top: 82px;
@@ -1786,6 +1786,7 @@
         <h2 class="title" data-i18n="titleSettings">SETTINGS</h2>
         <div class="lcdPanel">
           <button class="screenBtn primary" id="toggleSoundBtn" type="button" style="margin-bottom: 6px;">Sound: ON</button>
+          <button class="screenBtn primary" id="toggleNotifBtn" type="button" style="margin-bottom: 6px;">Alerts: ON</button>
           
           <!-- HORIZONTAL LANGUAGE TOGGLE FOR SETTINGS -->
           <div class="row">
@@ -1834,11 +1835,25 @@
 
   <!-- FIREBASE MODULE & NOKI GAME LOGIC -->
   <script type="module">
+    let swReg = null;
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js')
-          .then((reg) => console.log('Service Worker registered', reg))
+          .then(async (reg) => {
+            swReg = reg;
+            console.log('Service Worker registered', reg);
+            if ('periodicSync' in reg) {
+              try {
+                await reg.periodicSync.register('noki-msg-sync', { minInterval: 60 * 1000 });
+              } catch (e) {}
+            }
+          })
           .catch((err) => console.log('Service Worker failed', err));
+      });
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'OPEN_INBOX' && profile) {
+          showView('inboxView');
+        }
       });
     }
 
@@ -2003,7 +2018,7 @@
     });
 
     document.addEventListener("click", (e) => {
-      if (e.target.closest("#toggleSoundBtn") || e.target.closest("#gameArea") || e.target.closest("#jumpBtn") || e.target.closest(".lang-btn") || e.target.closest("#startOpeningBtn")) return; 
+      if (e.target.closest("#toggleSoundBtn") || e.target.closest("#toggleNotifBtn") || e.target.closest("#gameArea") || e.target.closest("#jumpBtn") || e.target.closest(".lang-btn") || e.target.closest("#startOpeningBtn")) return; 
       if (e.target.closest("button, .friendCard, .themeChoice, .avatarChoice, .removeBtn, .cute-button")) {
         soundClick();
       }
@@ -2512,9 +2527,71 @@
       });
     }
 
+    let notifEnabled = localStorage.getItem("nokiNotif") !== "false";
+
+    function isNotifGranted() {
+      return ("Notification" in window) && Notification.permission === "granted" && notifEnabled;
+    }
+
+    function syncUserToSW(unreadMap = null) {
+      if (!("serviceWorker" in navigator)) return;
+      const payload = {
+        type: "SET_USER",
+        uid: currentUser?.uid || null,
+        lang: currentLang,
+        notifEnabled: isNotifGranted(),
+        unreadMap: unreadMap
+      };
+      if (navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage(payload);
+      } else if (swReg && swReg.active) {
+        swReg.active.postMessage(payload);
+      }
+    }
+
+    async function triggerMessageNotification(friend) {
+      if (!isNotifGranted()) return;
+      const sender = friend.nickname || "Friend";
+      const avatar = friend.avatar || "💬";
+      let bodyText = friend.lastMessageText
+        ? `${avatar} ${friend.lastMessageText}`
+        : (currentLang === "ko" ? "새 메시지가 도착했습니다!" : (currentLang === "id" ? "Pesan baru masuk!" : "New message received!"));
+      const title = `NOKI NOKI · ${sender}`;
+      const options = {
+        body: bodyText,
+        icon: "icon.png",
+        badge: "icon.png",
+        tag: "noki-msg-" + (friend.uid || "chat"),
+        renotify: true,
+        data: { friendUid: friend.uid || null, url: "/nokinoki/" }
+      };
+      try {
+        const reg = swReg || (await navigator.serviceWorker?.getRegistration());
+        if (reg && reg.showNotification) {
+          await reg.showNotification(title, options);
+          return;
+        }
+      } catch (e) {}
+      try {
+        const n = new Notification(title, options);
+        n.onclick = () => {
+          window.focus();
+          if (profile) openPrivateChat(friend);
+          n.close();
+        };
+      } catch (e) {}
+    }
+
     function updateSettingsLabels() {
       const soundLabels = { en: "SOUND: ", ko: "소리: ", id: "SUARA: " };
       $("toggleSoundBtn").textContent = soundLabels[currentLang] + (soundEnabled ? "ON" : "OFF");
+
+      const notifLabels = { en: "ALERTS: ", ko: "알림: ", id: "NOTIF: " };
+      const notifBtn = $("toggleNotifBtn");
+      if (notifBtn) {
+        const activeState = ("Notification" in window) && Notification.permission === "granted" && notifEnabled;
+        notifBtn.textContent = notifLabels[currentLang] + (activeState ? "ON" : "OFF");
+      }
       
       document.querySelectorAll(".lang-btn").forEach(btn => {
         if (btn.dataset.lang === currentLang) {
@@ -2530,6 +2607,33 @@
       localStorage.setItem("nokiSound", soundEnabled);
       updateSettingsLabels();
       if(soundEnabled) playBeep(800, 'sine', 0.1);
+    });
+
+    $("toggleNotifBtn").addEventListener("click", async () => {
+      if (!("Notification" in window)) {
+        return showToast(currentLang === "ko" ? "브라우저 알림 미지원" : "NOT SUPPORTED");
+      }
+      if (Notification.permission !== "granted") {
+        const perm = await Notification.requestPermission();
+        if (perm !== "granted") {
+          notifEnabled = false;
+          localStorage.setItem("nokiNotif", "false");
+          updateSettingsLabels();
+          return showToast(currentLang === "ko" ? "알림 권한이 거부됨" : "PERMISSION DENIED");
+        }
+        notifEnabled = true;
+      } else {
+        notifEnabled = !notifEnabled;
+      }
+      localStorage.setItem("nokiNotif", notifEnabled);
+      updateSettingsLabels();
+      syncUserToSW();
+      if (notifEnabled) {
+        playBeep(800, 'sine', 0.1);
+        showToast(currentLang === "ko" ? "알림 켜짐!" : (currentLang === "id" ? "NOTIF AKTIF!" : "ALERTS ON!"));
+      } else {
+        showToast(currentLang === "ko" ? "알림 꺼짐" : (currentLang === "id" ? "NOTIF MATI" : "ALERTS OFF"));
+      }
     });
 
     document.querySelectorAll(".lang-btn").forEach(btn => {
@@ -2651,17 +2755,46 @@
       }
     }
 
+    let prevUnreadMap = {};
+    let initialFriendsLoaded = false;
+
     function watchFriends() {
       if (!currentUser || friendUnsubscribe) return;
+      if ("Notification" in window && Notification.permission === "default" && notifEnabled) {
+        Notification.requestPermission().then(() => {
+          updateSettingsLabels();
+          syncUserToSW();
+        }).catch(() => {});
+      }
       friendUnsubscribe = onValue(ref(db, `friends/${currentUser.uid}`), snap => {
         friends = snap.val() || {};
         
         let totalUnread = 0;
+        const currentUnreadMap = {};
         Object.values(friends).forEach(f => { 
           if (f && f.uid) {
-            totalUnread += (f.unread || 0); 
+            const count = f.unread || 0;
+            totalUnread += count;
+            currentUnreadMap[f.uid] = count;
+
+            if (initialFriendsLoaded) {
+              const prevCount = prevUnreadMap[f.uid] || 0;
+              if (count > prevCount) {
+                const inThisChat = (activeView === "chatView" && currentChat?.targetUid === f.uid && !document.hidden);
+                if (!inThisChat) {
+                  soundIncoming();
+                  if (document.hidden || !document.hasFocus()) {
+                    triggerMessageNotification(f);
+                  }
+                }
+              }
+            }
           }
         });
+        prevUnreadMap = currentUnreadMap;
+        initialFriendsLoaded = true;
+        syncUserToSW(currentUnreadMap);
+
         const badgeSpan = $("menuInboxBadge");
         if(badgeSpan) badgeSpan.textContent = totalUnread > 0 ? ` (${totalUnread})` : "";
         
@@ -2777,7 +2910,9 @@
 
         await update(ref(db), {
           [`${currentChat.path}/${push(ref(db)).key}`]: message,
-          [`friends/${currentChat.targetUid}/${profile.uid}/unread`]: increment(1)
+          [`friends/${currentChat.targetUid}/${profile.uid}/unread`]: increment(1),
+          [`friends/${currentChat.targetUid}/${profile.uid}/lastMessageText`]: text.slice(0, 120),
+          [`friends/${currentChat.targetUid}/${profile.uid}/lastMessageAt`]: serverTimestamp()
         });
       } catch (error) {
         showToast("Send error: " + error.message);
