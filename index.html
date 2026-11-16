@@ -1225,6 +1225,7 @@
       border-width:3px;
       position:relative;
       overflow:hidden;
+      flex-shrink:0;
     }
     .lcdPanel::after{
       content:"";
@@ -1540,29 +1541,66 @@
       letter-spacing:1px;
     }
 
-    #openingOverlay{
-      image-rendering:pixelated;
-      background:#09070d !important;
+    /* GLOW UP OPENING LOADER (exact match from reference) */
+    .galaxy-loader {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background:
+        linear-gradient(90deg,rgba(255,255,255,.35) 1px,transparent 1px),
+        linear-gradient(rgba(255,255,255,.35) 1px,transparent 1px),
+        #ffd8e8;
+      background-size: 22px 22px;
+      transition: opacity .45s ease, visibility .45s ease;
     }
-    #openingOverlay .star{ border-radius:0; }
-    #openingOverlay .nebula{ filter:blur(18px); }
-    .ufo-svg{
-      shape-rendering:crispEdges;
-      filter:drop-shadow(5px 5px 0 rgba(255,154,171,.28));
+    .galaxy-loader.hidden {
+      display: grid !important;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
     }
-    #startOpeningBtn{
-      border:3px solid #6b3b50 !important;
-      border-radius:4px !important;
-      background:#ffb3cf !important;
-      color:#4d2a3b !important;
-      box-shadow:5px 5px 0 #d98eae !important;
-      font-family:"Press Start 2P", ui-monospace, monospace !important;
-      font-size:8px !important;
-      line-height:1.5 !important;
-      padding:11px 16px !important;
+    .ufo-loader {
+      position: relative;
+      width: 90px;
+      height: 90px;
+      animation: pixelLoaderHop 1s steps(2,end) infinite;
+      opacity: 1;
     }
-    #startOpeningBtn:hover{ transform:translateY(-2px); }
-    #startOpeningBtn:active{ transform:translate(4px,4px); box-shadow:1px 1px 0 #d98eae !important; }
+    .ufo-loader-dome,
+    .ufo-loader-body,
+    .ufo-loader-beam {
+      display: none;
+    }
+    .ufo-loader::before {
+      content: "♥";
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: #f14f94;
+      font-family: "Press Start 2P", monospace;
+      font-size: 42px;
+      text-shadow: 5px 5px 0 #fff, 8px 8px 0 rgba(107,59,80,.18);
+    }
+    .ufo-loader::after {
+      content: "LOADING QUEST...";
+      position: absolute;
+      left: 50%;
+      top: 82px;
+      width: 190px;
+      transform: translateX(-50%);
+      text-align: center;
+      color: #4d2a3b;
+      font-family: "Press Start 2P", monospace;
+      font-size: 7px;
+      line-height: 1.5;
+    }
+    @keyframes pixelLoaderHop {
+      50% { transform: translateY(-5px); }
+    }
 
     @media (max-height:700px){
       .phone{ border-radius:15px 15px 20px 20px; }
@@ -1606,45 +1644,13 @@
     <div class="star-clicker"></div>
   </div>
 
-  <!-- COSMIC UFO OPENING OVERLAY -->
-  <div id="openingOverlay" style="position: fixed; inset: 0; z-index: 10000; background: #050510; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.8s ease, transform 0.8s ease; overflow: hidden; perspective: 1000px;">
-    <div class="starfield" id="starfield"></div>
-    <div class="nebula"></div>
-
-    <div class="ufo-wrapper">
-      <svg class="ufo-svg" viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="dome-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#fff" stop-opacity="0.8"/>
-            <stop offset="100%" stop-color="#ccc" stop-opacity="0.2"/>
-          </linearGradient>
-          <linearGradient id="body-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#2c3e50"/>
-            <stop offset="50%" stop-color="#bdc3c7"/>
-            <stop offset="100%" stop-color="#2c3e50"/>
-          </linearGradient>
-        </defs>
-
-        <path class="glass-dome" d="M60,60 C60,25 140,25 140,60 Z" />
-        <ellipse cx="100" cy="48" rx="8" ry="10" fill="#0d1117" />
-        <circle cx="96" cy="46" r="1.5" fill="#ffffff" />
-        <circle cx="104" cy="46" r="1.5" fill="#ffffff" />
-        <ellipse cx="100" cy="65" rx="85" ry="18" fill="url(#body-grad)" stroke="#111" stroke-width="2" />
-        <ellipse cx="100" cy="72" rx="50" ry="12" fill="#111" />
-
-        <circle class="ufo-light" cx="35" cy="64" r="3.5" fill="#ff9aab" style="--speed: 0.4s;" />
-        <circle class="ufo-light" cx="65" cy="71" r="4" fill="#ffc2d1" style="--speed: 0.6s;" />
-        <circle class="ufo-light" cx="100" cy="74" r="4.5" fill="#111111" style="--speed: 0.5s;" />
-        <circle class="ufo-light" cx="135" cy="71" r="4" fill="#ffc2d1" style="--speed: 0.7s;" />
-        <circle class="ufo-light" cx="165" cy="64" r="3.5" fill="#ff9aab" style="--speed: 0.3s;" />
-      </svg>
-      <div class="tractor-beam"></div>
+  <!-- GLOW UP OPENING LOADER -->
+  <div class="galaxy-loader" id="galaxy-loader">
+    <div class="ufo-loader">
+      <div class="ufo-loader-dome"></div>
+      <div class="ufo-loader-body"><span></span><span></span><span></span></div>
+      <div class="ufo-loader-beam"></div>
     </div>
-
-    <!-- Retro Interactive Boot Button -->
-    <button class="cute-button pink-button" id="startOpeningBtn" style="position: absolute; bottom: 50px; z-index: 10001; font-size: 14px; font-weight: 900; text-transform: uppercase !important; display: none;" type="button">
-      BOOT NOKI NOKI
-    </button>
   </div>
 
   <!-- RETRO PHONE CONTAINER -->
@@ -2164,30 +2170,114 @@
       return "NOKI-" + Date.now().toString().slice(-4);
     }
 
+    const OPENING_UFO_MIN_MS = 1450;
+    const appBootStartedAt = performance.now();
+
+    function hideOpeningLoader() {
+      const loader = $("galaxy-loader");
+      if (!loader || loader.classList.contains("hidden")) return;
+      const elapsed = performance.now() - appBootStartedAt;
+      const wait = Math.max(0, OPENING_UFO_MIN_MS - elapsed);
+      setTimeout(() => {
+        loader.classList.add("hidden");
+      }, wait);
+    }
+
+    async function ensureUserCode(userProfile, fallbackUid) {
+      if (!userProfile) return userProfile;
+      const uid = userProfile.uid || fallbackUid;
+      userProfile.uid = uid;
+
+      let code = safeText(userProfile.code || userProfile.friendCode || "");
+
+      if (!code) {
+        try {
+          const pubSnap = await get(ref(db, "publicCodes"));
+          if (pubSnap.exists()) {
+            const allCodes = pubSnap.val() || {};
+            for (const [k, v] of Object.entries(allCodes)) {
+              if (v && (v.uid === uid || (v.nickname && v.nickname.toLowerCase() === uid))) {
+                code = v.code || k;
+                break;
+              }
+            }
+          }
+        } catch (e) {}
+      }
+
+      if (!code) {
+        try {
+          const fSnap = await get(ref(db, `friends/${uid}`));
+          if (fSnap.exists()) {
+            const fList = Object.values(fSnap.val() || {});
+            for (const f of fList) {
+              if (f && f.uid) {
+                const mirrorSnap = await get(ref(db, `friends/${f.uid}/${uid}`));
+                if (mirrorSnap.exists() && mirrorSnap.val()?.code) {
+                  code = mirrorSnap.val().code;
+                  break;
+                }
+              }
+            }
+          }
+        } catch (e) {}
+      }
+
+      if (!code) {
+        code = await generateCode();
+      }
+
+      userProfile.code = code;
+
+      try {
+        await update(ref(db), {
+          [`users/${uid}/uid`]: uid,
+          [`users/${uid}/code`]: code,
+          [`publicCodes/${code}`]: {
+            uid: uid,
+            nickname: userProfile.nickname || uid.toUpperCase(),
+            avatar: userProfile.avatar || "💛",
+            code: code
+          }
+        });
+      } catch (e) {}
+
+      if ($("myCodeBox")) $("myCodeBox").textContent = code;
+      if ($("profileCode")) $("profileCode").textContent = code;
+      return userProfile;
+    }
+
     // --- DYNAMIC BACKGROUND SESSION PREPARATION (Silent Boot) ---
     let startTargetView = "setupView";
 
     const savedUid = localStorage.getItem("nokiUid");
     if (savedUid) {
-      get(ref(db, `users/${savedUid}`)).then(snap => {
+      get(ref(db, `users/${savedUid}`)).then(async snap => {
         if (snap.exists()) {
-          profile = snap.val();
+          profile = await ensureUserCode(snap.val(), savedUid);
           currentUser = { uid: profile.uid }; 
           localStorage.setItem("nokiProfile", JSON.stringify(profile));
           applyTheme(profile.theme || selectedTheme);
           update(ref(db, `users/${profile.uid}`), { lastSeen: serverTimestamp() });
           startTargetView = "homeView";
+          showView("homeView");
           watchFriends();
         } else {
           localStorage.removeItem("nokiUid");
           startTargetView = "setupView";
+          showView("setupView");
         }
+        hideOpeningLoader();
       }).catch(e => {
         showError($("setupError"), "Database connection error");
         startTargetView = "setupView";
+        showView("setupView");
+        hideOpeningLoader();
       });
     } else {
       startTargetView = "setupView";
+      showView("setupView");
+      hideOpeningLoader();
     }
 
     // LOGIN / REGISTER
@@ -2217,7 +2307,7 @@
             await update(ref(db, `users/${uid}`), { password: rawPass });
           }
 
-          profile = existingProfile;
+          profile = await ensureUserCode(existingProfile, uid);
           currentUser = { uid: profile.uid };
           localStorage.setItem("nokiUid", uid);
           localStorage.setItem("nokiProfile", JSON.stringify(profile));
@@ -2454,6 +2544,10 @@
     function renderHome() {
       if (!profile) return;
       $("homeHello").textContent = `${profile.avatar} ${profile.nickname}`;
+      if (profile.code) {
+        $("myCodeBox").textContent = profile.code;
+        $("profileCode").textContent = profile.code;
+      }
     }
 
     function renderInbox() {
@@ -2480,7 +2574,10 @@
     }
 
     function renderFriends() {
-      if (profile) $("myCodeBox").textContent = profile.code;
+      if (profile) {
+        $("myCodeBox").textContent = profile.code || "...";
+        if (!profile.code) ensureUserCode(profile, currentUser?.uid);
+      }
       const list = $("friendsList");
       list.innerHTML = "";
 
@@ -2721,6 +2818,7 @@
 
     function renderProfile() {
       if (!profile) return;
+      if (!profile.code) ensureUserCode(profile, currentUser?.uid);
       $("profileAvatar").textContent = profile.avatar || "💛";
       $("profileName").textContent = profile.nickname || "...";
       $("profileCode").textContent = profile.code || "...";
@@ -2817,60 +2915,7 @@
     applyTheme(selectedTheme);
     applyLang();
 
-    // --- GENERATE TWINKLING STARS DYNAMICALLY ---
-    const starfield = $("starfield");
-    const starCount = 120;
-    if (starfield) {
-      for (let i = 0; i < starCount; i++) {
-        const star = document.createElement('div');
-        star.className = 'star';
-        const size = Math.random() * 2.5 + 0.5;
-        const posX = Math.random() * 100;
-        const posY = Math.random() * 100;
-        const duration = Math.random() * 3 + 1.5;
-        const opacity = Math.random() * 0.8 + 0.2;
 
-        star.style.width = `${size}px`;
-        star.style.height = `${size}px`;
-        star.style.left = `${posX}%`;
-        star.style.top = `${posY}%`;
-        star.style.setProperty('--duration', `${duration}s`);
-        star.style.setProperty('--opacity', opacity);
-        starfield.appendChild(star);
-      }
-    }
-
-    // --- DELAYED DEPLOYMENT OF INTERACTIVE RETRO START BUTTON ---
-    setTimeout(() => {
-      const btn = $("startOpeningBtn");
-      if (btn) {
-        btn.style.display = "inline-flex";
-        btn.style.opacity = "0";
-        btn.style.transition = "opacity 0.8s ease";
-        btn.offsetHeight; // trigger reflow
-        btn.style.opacity = "1";
-      }
-    }, 4500);
-
-    // --- DISMISS OVERLAY & TRANSITION TO SILENT LOAD TARGET ---
-    const startOpeningBtn = $("startOpeningBtn");
-    if (startOpeningBtn) {
-      startOpeningBtn.addEventListener("click", () => {
-        playBeep(520, 'sine', 0.08);
-        setTimeout(() => playBeep(880, 'sine', 0.15), 100);
-
-        showView(startTargetView);
-
-        const overlay = $("openingOverlay");
-        if (overlay) {
-          overlay.style.opacity = "0";
-          overlay.style.transform = "translateY(-50px)";
-          setTimeout(() => {
-            overlay.style.display = "none";
-          }, 800);
-        }
-      });
-    }
   </script>
 </body>
 </html>
